@@ -9,8 +9,8 @@ Options:
     -a, --api_url:      API URl on the server
     -t, --token:     	your token
     -f, --file:         get login information from a file
-	-l, --log:          saves the log file
-	-v, --verbose:      verbose version of the script
+    -l, --log:          saves the log file
+    -v, --verbose:      verbose version of the script
 
 Exclude http:// from the server URL, since `http://' will be prepended to
 by the script.
