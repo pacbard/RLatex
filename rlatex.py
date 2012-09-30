@@ -119,7 +119,7 @@ def do_xml(source):
 	
 	cdata = open(source+".tex","r").read()
 		
-	resource.text = "<![CDATA[\n"+cdata+"\n]]>"
+	resource.text = "<![CDATA[\n"+cdata.decode('utf-8','ignore')+"\n]]>"
 	
 	string = ElementTree.tostring(compile, encoding='utf-8', method="xml").replace('&gt;', '>').replace('&lt;', '<').replace('&amp;', '&')
 	return string
