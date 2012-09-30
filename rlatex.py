@@ -55,6 +55,8 @@ Options:
     -a, --api_url:      API URl on the server
     -t, --token:     	your token
     -f, --file:         get login information from a file
+	-c, --compiler		sets the LaTeX Compiler
+	-o, --output		sets the LaTeX output file
 	-l, --log:          saves the log file
 	-v, --verbose:      verbose version of the script
 
@@ -69,6 +71,11 @@ details.
 
 If any of the server, username, and password are omitted, you will be
 asked to provide them.
+
+The CLSI interface supports the following compilers and outputs:
+	pdflatex 	pdf
+	latex 		dvi, pdf, ps
+	xelatex 	pdf
 
 See the RLaTeX documentation for more details on usage and limitations
 of rlatex."""
@@ -98,6 +105,12 @@ def do_xml(source):
 	token = SubElement(compile, "token")
 	token.text = TOKEN
 	
+	options = SubElement(compile, "options")
+	output = SubElement(options, "output-format")
+	output.text = OUTPUT
+	compiler = SubElement(options, "compiler")
+	compiler.text = COMPILER
+	
 	resources = SubElement(compile, "resources")
 	resources.set("root-resource-path", os.path.basename(source)+".tex")
 	
@@ -121,8 +134,15 @@ def do_parse(xmltext, filename):
 					if child.tag == 'output':
 						for child2 in child.getchildren():
 							output = child2.get('url')
-							urllib.urlretrieve (output, filename+".pdf")
-							
+							urllib.urlretrieve (output, filename+"."+OUTPUT)
+			else:
+				for child in tree.getchildren():
+					if child.tag == 'error':
+						for child2 in child.getchildren():
+							if child2.tag == 'message':
+								print('ERROR :\n\n')
+								print(child2.text)	
+								sys.exit(3)
 		if child.tag == 'logs':
 			for child2 in child.getchildren():
 				logs = child2.get('url')
@@ -133,13 +153,13 @@ def do_parse(xmltext, filename):
 				print(log)
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], 'hlvs:a:t:f:l:',
-                    ['help', 'log', 'verbose', 'server=', 'api_url=', 'token=', 'file='])
+    opts, args = getopt.getopt(sys.argv[1:], 'hlvs:a:t:f:l:c:o:',
+                    ['help', 'log', 'verbose', 'server=', 'api_url=', 'token=', 'file=', 'compiler=', 'output='])
 except getopt.GetoptError as err:
     print(str(err), usage, sep='\n\n')
     sys.exit(2)
 	
-HOST, API_URL, TOKEN = (None,) * 3
+HOST, API_URL, TOKEN, COMPILER, OUTPUT = (None,) * 5
 LOG = False
 VERBOSE = False
 
@@ -156,10 +176,14 @@ for o, a in opts:
     elif o in ('-f', '--file'):
         login_info_file = a
     elif o in ('-l', '--log'):
-		LOG = True
+        LOG = True
+    elif o in ('-c', '--compiler'):
+        COMPILER = a
+    elif o in ('-o', '--output'):
+        OUTPUT = a
     elif o in ('-v', '--verbose'):
-		VERBOSE = True
-		LOGFILE = open("rlatex.log","w+")
+        VERBOSE = True
+        LOGFILE = open("rlatex.log","w+")
 
 if len(args) != 1:
     print('Error: must specify exactly one file. Please specify options first.',
@@ -187,6 +211,12 @@ if not API_URL:
     API_URL = raw_input('Enter API URL: ')
 if not TOKEN:
     TOKEN = raw_input('Enter token:  ')
+
+# Default values if not passed through argument
+if not COMPILER:
+    COMPILER = 'pdflatex'
+if not OUTPUT:
+    OUTPUT = 'pdf'
 	
 print("Server: ", HOST)
 print("API URL: ", API_URL)
