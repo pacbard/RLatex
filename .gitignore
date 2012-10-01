@@ -168,3 +168,5 @@ login.txt
 *.tex
 *.log
 *.pdf
+build
+dist
