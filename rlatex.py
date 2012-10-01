@@ -53,12 +53,12 @@ Options:
     -h, --help:         print this message
     -s, --server:       the CLSI server to contact
     -a, --api_url:      API URl on the server
-    -t, --token:     	your token
+    -t, --token:        your token
     -f, --file:         get login information from a file
-	-c, --compiler		sets the LaTeX Compiler
-	-o, --output		sets the LaTeX output file
-	-l, --log:          saves the log file
-	-v, --verbose:      verbose version of the script
+    -c, --compiler      sets the LaTeX Compiler
+    -o, --output        sets the LaTeX output file
+    -l, --log:          saves the log file
+    -v, --verbose:      verbose version of the script
 
 Exclude http:// from the server URL, since `http://' will be prepended to
 by the script.
@@ -73,9 +73,9 @@ If any of the server, username, and password are omitted, you will be
 asked to provide them.
 
 The CLSI interface supports the following compilers and outputs:
-	pdflatex 	pdf
-	latex 		dvi, pdf, ps
-	xelatex 	pdf
+    pdflatex    pdf
+    latex       dvi, pdf, ps
+    xelatex     pdf
 
 See the RLaTeX documentation for more details on usage and limitations
 of rlatex."""
@@ -153,42 +153,41 @@ def do_parse(xmltext, filename):
 				print(log)
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], 'hlvs:a:t:f:l:c:o:',
-                    ['help', 'log', 'verbose', 'server=', 'api_url=', 'token=', 'file=', 'compiler=', 'output='])
+	opts, args = getopt.getopt(sys.argv[1:], 'hlvs:a:t:f:l:c:o:',
+					['help', 'log', 'verbose', 'server=', 'api_url=', 'token=', 'file=', 'compiler=', 'output='])
 except getopt.GetoptError as err:
-    print(str(err), usage, sep='\n\n')
-    sys.exit(2)
+	print(str(err), usage, sep='\n\n')
+	sys.exit(2)
 	
 HOST, API_URL, TOKEN, COMPILER, OUTPUT = (None,) * 5
 LOG = False
 VERBOSE = False
 
 for o, a in opts:
-    if o in ('-h', '--help'):
-        print(usage)
-        sys.exit()
-    elif o in ('-s', '--server'):
-        HOST = a
-    elif o in ('-a', '--api_url'):
-        API_URL = a
-    elif o in ('-t', '--token'):
-        TOKEN = a
-    elif o in ('-f', '--file'):
-        login_info_file = a
-    elif o in ('-l', '--log'):
-        LOG = True
-    elif o in ('-c', '--compiler'):
-        COMPILER = a
-    elif o in ('-o', '--output'):
-        OUTPUT = a
-    elif o in ('-v', '--verbose'):
-        VERBOSE = True
-        LOGFILE = open("rlatex.log","w+")
+	if o in ('-h', '--help'):
+		print(usage)
+		sys.exit()
+	elif o in ('-s', '--server'):
+		HOST = a
+	elif o in ('-a', '--api_url'):
+		API_URL = a
+	elif o in ('-t', '--token'):
+		TOKEN = a
+	elif o in ('-f', '--file'):
+		login_info_file = a
+	elif o in ('-l', '--log'):
+		LOG = True
+	elif o in ('-c', '--compiler'):
+		COMPILER = a
+	elif o in ('-o', '--output'):
+		OUTPUT = a
+	elif o in ('-v', '--verbose'):
+		VERBOSE = True
+		LOGFILE = open("rlatex.log","w+")
 
 if len(args) != 1:
-    print('Error: must specify exactly one file. Please specify options first.',
-          usage, sep='\n\n')
-    sys.exit(2)
+	print('Error: must specify exactly one file. Please specify options first.',usage, sep='\n\n')
+	sys.exit(2)
 
 if login_info_file:
 	try:
@@ -206,27 +205,26 @@ if login_info_file:
 	except IOError as e:
 		print (login_info_file, " not found")
 if not HOST:
-    HOST = raw_input('Enter server: ')
+	HOST = raw_input('Enter server: ')
 if not API_URL:
-    API_URL = raw_input('Enter API URL: ')
+	API_URL = raw_input('Enter API URL: ')
 if not TOKEN:
-    TOKEN = raw_input('Enter token:  ')
+	TOKEN = raw_input('Enter token:  ')
 
 # Default values if not passed through argument
 if not COMPILER:
-    COMPILER = 'pdflatex'
+	COMPILER = 'pdflatex'
 if not OUTPUT:
-    OUTPUT = 'pdf'
-	
+	OUTPUT = 'pdf'
+
 print("Server: ", HOST)
 print("API URL: ", API_URL)
 print("Token: ", TOKEN)
 
 if len(args) != 1:
-    print('Error: must specify exactly one file. Please specify options first.',
-          usage, sep='\n\n')
-    sys.exit(2)
-	
+	print('Error: must specify exactly one file. Please specify options first.',usage, sep='\n\n')
+	sys.exit(2)
+
 jobname = os.path.splitext(args[0])[0]
 xml_request = do_xml(jobname)
 result = do_request(xml_request)
