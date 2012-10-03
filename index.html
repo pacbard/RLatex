@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Rlatex by pacbard</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Rlatex</h1>
+        <p>Python interface to a LaTeX CLSI server</p>
+
+        <p class="view"><a href="https://github.com/pacbard/RLatex">View the Project on GitHub <small>pacbard/RLatex</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/pacbard/RLatex/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/pacbard/RLatex/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/pacbard/RLatex">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <p>Python interface to a LaTeX CLSI server</p>
+
+<p>Usage: python rlatex.py [options] inputfile.tex</p>
+
+<p>Options:</p>
+
+<pre><code>-h, --help:         print this message
+-s, --server:       the CLSI server to contact
+-a, --api_url:      API URl on the server
+-t, --token:        your token
+-f, --file:         get login information from a file
+-c, --compiler      sets the LaTeX Compiler
+-o, --output        sets the LaTeX output file
+-l, --log:          saves the log file
+-v, --verbose:      verbose version of the script
+</code></pre>
+
+<p>Exclude http:// from the server URL, since the script will prepend 
+`http://' . At this time, https:// are not supported by the CLSI server.</p>
+
+<p>You can hard-code the filename from which to read login information into
+the rlatex script. Command-line arguments take precedence over
+the contents of that file. See the RLaTeX documentation for formatting
+details.</p>
+
+<p>If any of the server, api_url, and token are omitted, you will be
+asked to provide them.</p>
+
+<p>RLatex supports multiple compilers and output formats:
+    pdflatex    pdf
+    latex       dvi, pdf, ps
+    xelatex     pdf
+If the compiler and/or the output format are not specified as arguments,
+RLatex will use pdflatex as compiler and pdf as output format. For this
+reason, most user will not need to specify a compiler or output formats.</p>
+
+<p>See the RLaTeX documentation for more details on usage and limitations
+of rlatex.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/pacbard">pacbard</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
