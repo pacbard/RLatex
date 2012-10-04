@@ -1,0 +1,3 @@
+server = 'clsi.example.com'
+api_url = '/clsi/compile'
+token = 'your_token'
