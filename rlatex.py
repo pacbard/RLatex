@@ -23,6 +23,7 @@ from xml.etree import ElementTree
 from xml.dom import minidom
 import urllib
 import os.path
+import re
 
 #########################################################################
 # You can provide a filename here and the script will read your login   #
@@ -36,12 +37,14 @@ import os.path
 # marks at the beginning of a line for comments. Command-line args      #
 # take precedence over information from the file.                       #
 #########################################################################
+
 def filePath():
 	if hasattr(sys, 'frozen'):
 		basis = sys.executable
 	else:
 		basis = os.path.realpath(__file__)
 	return(os.path.split(basis)[0])
+
 login_info_file = filePath()+'/login.txt'
 
 usage = """Process a LaTex file using a CLSI server.
@@ -58,7 +61,7 @@ Options:
     -c, --compiler      sets the LaTeX Compiler
     -o, --output        sets the LaTeX output file
     -l, --log:          saves the log file
-    -v, --verbose:      verbose version of the script
+    -d, --debug:      	debug version of the script
 
 Exclude http:// from the server URL, since `http://' will be prepended to
 by the script.
@@ -92,7 +95,7 @@ def do_request(xml_request):
 	webservice.send(xml_request)
 	statuscode, statusmessage, header = webservice.getreply()
 	result = webservice.getfile().read()
-	if VERBOSE:
+	if DEBUG:
 		LOGFILE.write("XML request\n")
 		LOGFILE.write(xml_request)
 		LOGFILE.write("\nXML request result\n")
@@ -100,6 +103,11 @@ def do_request(xml_request):
 	return result
 
 def do_xml(source):
+	path, source = os.path.split(source)
+	if path != "":
+		path += "/"
+	toCompile = [source+".tex"] + find_include(path+source+".tex")
+	
 	compile = Element("compile")
 	
 	token = SubElement(compile, "token")
@@ -112,16 +120,18 @@ def do_xml(source):
 	compiler.text = COMPILER
 	
 	resources = SubElement(compile, "resources")
-	resources.set("root-resource-path", os.path.basename(source)+".tex")
+	resources.set("root-resource-path", source+".tex")
 	
-	resource = SubElement(resources, "resource")
-	resource.set("path", os.path.basename(source)+".tex")
-	
-	cdata = open(source+".tex","r").read()
+	for file in toCompile:
+		resource = SubElement(resources, "resource")
+		resource.set("path", file)
 		
-	resource.text = "<![CDATA[\n"+cdata.decode('utf-8','ignore')+"\n]]>"
+		cdata = open(path+file,"r").read()
+			
+		resource.text = "\n<![CDATA[\n"+cdata.decode('utf-8','ignore')+"\n]]>\n"
 	
 	string = ElementTree.tostring(compile, encoding='utf-8', method="xml").replace('&gt;', '>').replace('&lt;', '<').replace('&amp;', '&')
+
 	return string
 
 def do_parse(xmltext, filename):
@@ -141,8 +151,16 @@ def do_parse(xmltext, filename):
 						for child2 in child.getchildren():
 							if child2.tag == 'message':
 								print('ERROR :\n\n')
-								print(child2.text)	
-								sys.exit(3)
+								print(child2.text)
+					elif child.tag == 'logs':
+						for child2 in child.getchildren():
+							logs = child2.get('url')
+							urllib.urlretrieve (logs, filename+".log")
+							log = open(filename+".log","r").read()
+							if not LOG:
+								os.remove(filename+".log")
+							print(log)
+				sys.exit()
 		if child.tag == 'logs':
 			for child2 in child.getchildren():
 				logs = child2.get('url')
@@ -152,16 +170,65 @@ def do_parse(xmltext, filename):
 					os.remove(filename+".log")
 				print(log)
 
+def find_include(source):
+	load_profile = open(source, "r")
+	read_it = load_profile.read()
+	myFiles = []
+	for line in read_it.splitlines():
+		if line.startswith("%include"):
+			if " " in line:
+				param, value = line.split(" ",1)
+				myFiles.append(value)
+			continue
+		elif "\\include" in line:
+			if DEBUG:
+				LOGFILE.write("Include found at "+line+"\n")
+			value = re.search(r'\{(.+)\}', line)
+			if ".tex" in value.group(1):
+				myFiles.append(value.group(1))
+			else:
+				myFiles.append(value.group(1)+".tex")
+			continue
+		elif "\\includeonly" in line:
+			if DEBUG:
+				LOGFILE.write("Include found at "+line+"\n")
+			value = re.search(r'\{(.+)\}', line)
+			if ".tex" in value.group(1):
+				myFiles.append(value.group(1))
+			else:
+				myFiles.append(value.group(1)+".tex")
+			continue
+		elif "\\input" in line:
+			if DEBUG:
+				LOGFILE.write("Include found at "+line+"\n")
+			value = re.search(r'\{(.+)\}', line)
+			if ".tex" in value.group(1):
+				myFiles.append(value.group(1))
+			else:
+				myFiles.append(value.group(1)+".tex")
+			continue
+		elif "\\bibliography" in line:
+			if not "\\bibliographystyle" in line:
+				if DEBUG:
+					LOGFILE.write("Bibliography fount at "+line+"\n")
+				value = re.search(r'\{(.+)\}', line)
+				if ".bib" in value.group(1):
+					myFiles.append(value.group(1))
+				else:
+					myFiles.append(value.group(1)+".bib")
+			continue
+	return myFiles
+				
 try:
-	opts, args = getopt.getopt(sys.argv[1:], 'hlvs:a:t:f:l:c:o:',
-					['help', 'log', 'verbose', 'server=', 'api_url=', 'token=', 'file=', 'compiler=', 'output='])
+	opts, args = getopt.getopt(sys.argv[1:], 'hlds:a:t:f:l:c:o:',
+					['help', 'log', 'debug', 'server=', 'api_url=', 'token=', 'file=', 'compiler=', 'output='])
 except getopt.GetoptError as err:
 	print(str(err), usage, sep='\n\n')
 	sys.exit(2)
 	
 HOST, API_URL, TOKEN, COMPILER, OUTPUT = (None,) * 5
 LOG = False
-VERBOSE = False
+DEBUG = False
 
 for o, a in opts:
 	if o in ('-h', '--help'):
@@ -181,9 +248,9 @@ for o, a in opts:
 		COMPILER = a
 	elif o in ('-o', '--output'):
 		OUTPUT = a
-	elif o in ('-v', '--verbose'):
-		VERBOSE = True
-		LOGFILE = open("rlatex.log","w+")
+	elif o in ('-d', '--debug'):
+		DEBUG = True
+		LOGFILE = open("debug.log","w+")
 
 if len(args) != 1:
 	print('Error: must specify exactly one file. Please specify options first.',usage, sep='\n\n')
@@ -229,5 +296,5 @@ jobname = os.path.splitext(args[0])[0]
 xml_request = do_xml(jobname)
 result = do_request(xml_request)
 do_parse(result, jobname)
-if VERBOSE:
+if DEBUG:
 	LOGFILE.close()
