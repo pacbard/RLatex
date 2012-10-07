@@ -14,7 +14,7 @@ Options:
     -c, --compiler      sets the LaTeX Compiler
     -o, --output        sets the LaTeX output file
     -l, --log:          saves the log file
-    -v, --verbose:      verbose version of the script
+    -d, --debug:        debug version of the script
 ```
 You can hard-code the filename from which to read login information into
 the rlatex script. Command-line arguments take precedence over
