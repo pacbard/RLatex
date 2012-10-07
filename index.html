@@ -28,7 +28,9 @@
         </ul>
       </header>
       <section>
-        <p>A python interface to a LaTeX CLSI server</p>
+        <h1>RLatex</h1>
+
+<p>A python interface to a LaTeX CLSI server</p>
 
 <p>Usage: <code>python rlatex.py [options] inputfile.tex</code></p>
 
@@ -42,7 +44,7 @@
     -c, --compiler      sets the LaTeX Compiler
     -o, --output        sets the LaTeX output file
     -l, --log:          saves the log file
-    -v, --verbose:      verbose version of the script
+    -d, --debug:        debug version of the script
 </code></pre>
 
 <p>You can hard-code the filename from which to read login information into
@@ -61,7 +63,7 @@ asked to provide them.</p>
 </code></pre>
 
 <p>If the compiler and/or the output format are not specified as arguments,
-RLatex will use pdflatex as compiler and pdf as output format. For this
+RLatex will use <code>pdflatex</code> as compiler and <code>pdf</code> as output format. For this
 reason, most user will not need to specify a compiler or output formats.</p>
 
 <hr><p>See the RLaTeX documentation for more details on usage and limitations
