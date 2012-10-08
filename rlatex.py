@@ -354,8 +354,8 @@ class rlatex(object):
 	"""	Finds the included files
 		
 		findIncluded() scans the source file for included files.
-		At this time (v0.3), it supports \input, \include, \includeonly, 
-		\thebibliography commands.
+		At this time (v0.3), it supports \input, \include, \includeonly, \thebibliography 
+		commands.
 		If the included file is required by the LaTeX compiler but does not need to be
 		included in the .tex file (e.g., a .sty file) use the command %\include{my.sty}
 		to pass the my.sty file to the CLSI compiler.
