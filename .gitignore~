@@ -170,5 +170,4 @@ login.txt
 *.pdf
 build
 dist
-test
 doc
