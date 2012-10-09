@@ -168,6 +168,8 @@ pip-log.txt
 # Local files to ignore
 local.txt
 login.txt
+*.h
+*~
 *.log
 *.pdf
 build
