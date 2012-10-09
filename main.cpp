@@ -8,8 +8,6 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #endif
 
-#include "socket.h"
-#include "xmlparser.h"
 #include "main.h"
 
 using namespace std;
@@ -39,8 +37,8 @@ string buildRequest(string filename) {
 	xml.addAttribute("version","1.0");
 	xml.addAttribute("encoding","UTF-8");
 	XMLNode compile = xml.addChild("compile");
-	XMLNode token = compile.addChild("token");
-	token.addText(token);
+	XMLNode tokenXML = compile.addChild("token");
+	tokenXML.addText(token.c_str());
 	XMLNode resources = compile.addChild("resources");
 	resources.addAttribute("root-resource-path", filename.c_str());
 	XMLNode resource = resources.addChild("resource");
