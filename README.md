@@ -1,4 +1,4 @@
-= RLatex C++
+# RLatex C++
 
 This is a prototype version of RLatex writte in C++.
 
