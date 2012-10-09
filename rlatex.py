@@ -163,7 +163,8 @@ class rlatex(object):
         
         try:
             with open(self.login, 'r') as f:
-                print('Login information found in file {0}.'.format(self.login))
+                if self.debug:
+                    logging.info('Login information found in file {0}.'.format(self.login))
                 get_val = lambda x: x.split('=')[1].strip().strip('\'"')
                 for line in f:
                     if not line.startswith('#'):
@@ -174,7 +175,10 @@ class rlatex(object):
                         if line.startswith('token') and not self.token:
                             self.token = get_val(line)
         except IOError as e:
-            print (login, " not found")
+            print (self.login, " not found")
+            if self.debug:
+                logging.warning(self.login + " not found")
+
         if not self.host:
             self.host = raw_input('Enter server: ')
         if not self.api_url:
@@ -183,9 +187,10 @@ class rlatex(object):
             self.token = raw_input('Enter token:  ')
         
         # Screen confirmation of the settings
-        print("Server: ", self.host)
-        print("API URL: ", self.api_url)
-        print("Token: ", self.token)
+        if self.debug:
+            logging.info("Server: " + self.host)
+            logging.info("API URL: " + self.api_url)
+            logging.info("Token: " + self.token)
     
     def manageArgv(self, argv):
         """
@@ -227,8 +232,7 @@ class rlatex(object):
                 self.output = a
             elif o in ('-d', '--debug'):
                 self.debug = True
-                logging.basicConfig(filename='debug.log',level=logging.DEBUG, format='%(asctime)s\n%(message)s\n', datefmt='%m/%d/%Y %I:%M:%S %p')
-                        
+                                        
         # Splits the argument in the path and the source
         self.texpath, self.texsource = os.path.split(file[0])
         
@@ -238,6 +242,10 @@ class rlatex(object):
         # Gets the file name without the extension
         self.texsource = os.path.splitext(self.texsource)[0]
         
+        # Starts the logger if debug flag is TRUE
+        if self.debug:
+            logging.basicConfig(filename=self.texpath+'debug.log',level=logging.DEBUG, format='%(asctime)s\n%(message)s\n', datefmt='%m/%d/%Y %I:%M:%S %p')
+    
     def scriptPath(self):
         """
         Returns the script installation path
@@ -311,12 +319,15 @@ class rlatex(object):
         resources.set("root-resource-path", source+".tex")
         
         for file in toCompile:
-            resource = SubElement(resources, "resource")
-            resource.set("path", file)
-            
-            cdata = open(path+file,"r").read()
-                
-            resource.text = "\n<![CDATA[\n"+cdata.decode('utf-8','ignore')+"\n]]>\n"
+            try:
+                with open(path+file,"r") as f:
+                    cdata = f.read()
+                    resource = SubElement(resources, "resource")
+                    resource.set("path", file)
+                    resource.text = "\n<![CDATA[\n"+cdata.decode('utf-8','ignore')+"\n]]>\n"
+            except IOError as e:
+                if self.debug:
+                    logging.error("File included as "+file+" could not be found.")
         
         # Python version > 2.7
         #string = ElementTree.tostring(compile, encoding="utf-8", method="xml").replace('&gt;', '>').replace('&lt;', '<').replace('&amp;', '&')
@@ -346,9 +357,10 @@ class rlatex(object):
                     for child in tree.getchildren():
                         if child.tag == 'output':
                             for child2 in child.getchildren():
-                                logging.info("Saving output in :"+filename+"."+self.output)
+                                if self.debug:
+                                    logging.info("Saving output in :"+self.texpath+filename+"."+self.output)
                                 output = child2.get('url')
-                                urllib.urlretrieve (output, filename+"."+self.output)
+                                urllib.urlretrieve (output, self.texpath+filename+"."+self.output)
                 # Compilation not successful
                 else:
                     for child in tree.getchildren():
@@ -360,22 +372,22 @@ class rlatex(object):
                         elif child.tag == 'logs':
                             for child2 in child.getchildren():
                                 logs = child2.get('url')
-                                log = urllib.urlopen(logs)
-                                print(log.read())
+                                log = urllib.urlopen(logs).read()
+                                print(log)
                                 if self.log:
-                                    localFile = open(filename+".log", 'w')
-                                    localFile.write(log.read())
-                                    localFile.close()
+                                    logFile = open(self.texpath+filename+".log", 'w')
+                                    logFile.write(log)
+                                    logFile.close()
                     sys.exit()
             if child.tag == 'logs':
                 for child2 in child.getchildren():
                     logs = child2.get('url')
-                    log = urllib.urlopen(logs)
-                    print(log.read())
+                    log = urllib.urlopen(logs).read()
+                    print(log)
                     if self.log:
-                        localFile = open(filename+".log", 'w')
-                        localFile.write(log.read())
-                        localFile.close()
+                        logFile = open(self.texpath+filename+".log", 'w')
+                        logFile.write(log)
+                        logFile.close()
 
     def findIncluded(self, file):
         """
