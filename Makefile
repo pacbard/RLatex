@@ -15,7 +15,7 @@ all: $(NAME)
 $(NAME): main.o socket.o xmlParser.o urlParser.o
 	$(CXX) -o $(NAME) main.o socket.o xmlParser.o urlParser.o
 	
-main.o: main.cpp socket.o xmlParser.o
+main.o: main.cpp login.h socket.o xmlParser.o
 	$(COMPILE) -o main.o main.cpp
 	
 socket.o: socket.cpp socket.h urlParser.cpp urlParser.h xmlParser.h xmlParser.cpp

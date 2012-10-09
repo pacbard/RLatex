@@ -8,7 +8,10 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #endif
 
-#include "main.h"
+#include "urlParser.h"
+#include "socket.h"
+#include "xmlParser.h"
+#include "login.h"
 
 using namespace std;
 
