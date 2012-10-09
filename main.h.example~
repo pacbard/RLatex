@@ -1,0 +1,7 @@
+#include "urlParser.h"
+
+using namespace std;
+
+string server = "clsi.scribtex.com"
+string api_url = "/clsi/compile"
+string token = "f6c85efafd6e1abca281e0f7cbc131f0"
