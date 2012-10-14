@@ -1,4 +1,12 @@
 \documentclass[11pt]{article}
+%Packets for graphs
+\usepackage{graphicx}
+\usepackage{epstopdf}
+%Boxed figures
+\usepackage{float}
+\floatstyle{boxed} 
+\restylefloat{figure}
+
 \author{John Doe} \title{Sample Document}
 \begin{document}
 \maketitle
@@ -8,6 +16,9 @@
 According to the handbook of van Leunen \cite{vanleunen},
 this paragraph---and certainly this
 section---should be longer than one sentence.
+
+%\includegrphics{sin(x).png}
+\input{sine}
 
 \section{More references}
 
