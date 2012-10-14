@@ -6,9 +6,10 @@ from xml.etree.ElementTree import Element, SubElement, Comment
 from xml.etree import ElementTree
 from xml.dom import minidom
 import urllib
-import os.path
 import re
 import logging
+import os.path
+import base64
 
 __applicationName__ = "rlatex"
 
@@ -320,19 +321,24 @@ class rlatex(object):
         
         for file in toCompile:
             try:
-                with open(path+file,"r") as f:
-                    cdata = f.read()
-                    resource = SubElement(resources, "resource")
-                    resource.set("path", file)
-                    resource.text = "\n<![CDATA[\n"+cdata.decode('utf-8','ignore')+"\n]]>\n"
+                if file.lower().endswith(('.tex', '.bib')):
+                    with open(path+file,"r") as f:
+                        cdata = f.read()
+                        resource = SubElement(resources, "resource")
+                        resource.set("path", file)
+                        resource.text = "<![CDATA["+cdata.decode('utf-8','ignore')+"]]>"
+                else:
+                    with open(path+file,"rb") as f:
+                        cdata = base64.b64encode(f.read())
+                        resource = SubElement(resources, "resource")
+                        resource.set("path", file)
+                        resource.set("encoding", 'base64')
+                        resource.text = "<![CDATA["+cdata.decode('utf-8','ignore')+"]]>"
             except IOError as e:
                 if self.debug:
                     logging.error("File included as "+file+" could not be found.")
         
-        # Python version > 2.7
-        #string = ElementTree.tostring(compile, encoding="utf-8", method="xml").replace('&gt;', '>').replace('&lt;', '<').replace('&amp;', '&')
-        # Python version <= 2.6
-        string = ElementTree.tostring(compile, encoding="utf-8").replace('&gt;', '>').replace('&lt;', '<').replace('&amp;', '&')
+        string = ElementTree.tostring(compile, encoding="utf-8", method="xml").replace('&gt;', '>').replace('&lt;', '<').replace('&amp;', '&')
         
         return string
 
@@ -408,42 +414,25 @@ class rlatex(object):
         read_it = load_profile.read()
         myFiles = []
         for line in read_it.splitlines():
-            if "\\include" in line:
+            if "\\include" in line or "\\input" in line:
                 if self.debug:
                     logging.info("Include found at "+line+"\n")
-                value = re.search(r'\{(.+)\}', line)
-                if ".tex" in value.group(1):
-                    myFiles.append(value.group(1))
+                file = re.search(r'\{(.+)\}', line).group(1)
+                if "." in file:  # If file has an extension, keep it
+                    myFiles.append(file)
                 else:
-                    myFiles.append(value.group(1)+".tex")
-                continue
-            elif "\\includeonly" in line:
-                if self.debug:
-                    logging.info("Include found at "+line+"\n")
-                value = re.search(r'\{(.+)\}', line)
-                if ".tex" in value.group(1):
-                    myFiles.append(value.group(1))
-                else:
-                    myFiles.append(value.group(1)+".tex")
-                continue
-            elif "\\input" in line:
-                if self.debug:
-                    logging.info("Include found at "+line)
-                value = re.search(r'\{(.+)\}', line)
-                if ".tex" in value.group(1):
-                    myFiles.append(value.group(1))
-                else:
-                    myFiles.append(value.group(1)+".tex")
+                    myFiles.append(file+".tex")
                 continue
             elif "\\bibliography" in line:
                 if not "\\bibliographystyle" in line:
                     if self.debug:
-                        logging.info("Bibliography fount at "+line+"\n")
-                    value = re.search(r'\{(.+)\}', line)
-                    if ".bib" in value.group(1):
-                        myFiles.append(value.group(1))
+                        logging.info("Include found at "+line+"\n")
+                    file = re.search(r'\{(.+)\}', line).group(1)
+                    if file.endswith(('.bib')):  # If file has an extension, keep it
+                        myFiles.append(file)
                     else:
-                        myFiles.append(value.group(1)+".bib")
+                        myFiles.append(file+".bib")
+                    continue
                 continue
         return myFiles
     
