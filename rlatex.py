@@ -246,7 +246,7 @@ class rlatex(object):
         
         # Starts the logger if debug flag is TRUE
         if self.debug:
-            logging.basicConfig(filename=self.texpath+'debug.log',level=logging.DEBUG, format='%(asctime)s\n%(message)s\n', datefmt='%m/%d/%Y %I:%M:%S %p')
+            logging.basicConfig(filename=self.texpath+'debug.log',level=logging.DEBUG, format='%(asctime)s\n%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
     
     def scriptPath(self):
         """
@@ -302,6 +302,8 @@ class rlatex(object):
         As of version 0.3, it searches for included file in the source
         file.  See findIncluded() documentation for more details.
         command
+        As of verion 0.6, it uses either UTF-8 (whenever possible) or base 64 (as
+        fallback encoding) for the input files
         """
         
         toCompile = [source+".tex"] + self.findIncluded(path+source+".tex")
@@ -322,22 +324,24 @@ class rlatex(object):
         
         for file in toCompile:
             try:
-                if file.lower().endswith(('.tex', '.bib')):
-                    with open(path+file,"r") as f:
-                        cdata = f.read()
-                        resource = SubElement(resources, "resource")
-                        resource.set("path", file)
+                with open(path+file,"rb") as f:
+                    cdata = f.read()
+                    resource = SubElement(resources, "resource")
+                    resource.set("path", file)
+                    try: 
+                        content = cdata.decode('utf-8')
                         resource.set("encoding", 'utf-8')
-                        resource.set("modified", time.strftime('%Y-%m-%d %H:%M:%S'))
-                        resource.text = "<![CDATA["+cdata.decode('utf-8','ignore')+"]]>"
-                else:
-                    with open(path+file,"rb") as f:
-                        cdata = base64.b64encode(f.read())
-                        resource = SubElement(resources, "resource")
-                        resource.set("path", file)
+                        resource.text = "<![CDATA["+content+"]]>" 
+                        if self.debug:
+                            logging.info(file+" encoded using UTF-8")
+                    except ValueError:
+                        content = base64.b64encode(cdata)
                         resource.set("encoding", 'base64')
-                        resource.set("modified", time.strftime('%Y-%m-%d %H:%M:%S'))
-                        resource.text = "<![CDATA["+cdata.decode('utf-8','ignore')+"]]>"
+                        resource.text = "<![CDATA["+content+"]]>"
+                        if self.debug:
+                            logging.info(file+" encoded using base64")
+                    finally:
+                        resource.set("modified", time.strftime('%Y-%m-%d %H:%M:%S'))  
             except IOError as e:
                 if self.debug:
                     logging.error("File included as "+file+" could not be found.")
@@ -420,7 +424,7 @@ class rlatex(object):
         for line in read_it.splitlines():
             if "\\include" in line or "\\input" in line:
                 if self.debug:
-                    logging.info("Include found at "+line+"\n")
+                    logging.info("Include found at "+line)
                 file = re.search(r'\{(.+)\}', line).group(1)
                 if "." in file:  # If file has an extension, keep it
                     myFiles.append(file)
@@ -430,7 +434,7 @@ class rlatex(object):
             elif "\\bibliography" in line:
                 if not "\\bibliographystyle" in line:
                     if self.debug:
-                        logging.info("Include found at "+line+"\n")
+                        logging.info("Include found at "+line)
                     file = re.search(r'\{(.+)\}', line).group(1)
                     if file.endswith(('.bib')):  # If file has an extension, keep it
                         myFiles.append(file)

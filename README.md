@@ -34,6 +34,9 @@ If the compiler and/or the output format are not specified as arguments,
 RLatex will use ```pdflatex``` as compiler and ```pdf``` as output format. For this
 reason, most user will not need to specify a compiler or output formats.
 
+# TODO
+ *  Add support for asynchronous compilation
+
 ***
 
 See the RLaTeX documentation for more details on usage and limitations
