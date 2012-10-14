@@ -10,6 +10,7 @@ import re
 import logging
 import os.path
 import base64
+import time
 
 __applicationName__ = "rlatex"
 
@@ -326,6 +327,8 @@ class rlatex(object):
                         cdata = f.read()
                         resource = SubElement(resources, "resource")
                         resource.set("path", file)
+                        resource.set("encoding", 'utf-8')
+                        resource.set("modified", time.strftime('%Y-%m-%d %H:%M:%S'))
                         resource.text = "<![CDATA["+cdata.decode('utf-8','ignore')+"]]>"
                 else:
                     with open(path+file,"rb") as f:
@@ -333,6 +336,7 @@ class rlatex(object):
                         resource = SubElement(resources, "resource")
                         resource.set("path", file)
                         resource.set("encoding", 'base64')
+                        resource.set("modified", time.strftime('%Y-%m-%d %H:%M:%S'))
                         resource.text = "<![CDATA["+cdata.decode('utf-8','ignore')+"]]>"
             except IOError as e:
                 if self.debug:
