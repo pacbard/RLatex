@@ -5,14 +5,18 @@ import sys, httplib, getopt
 from xml.etree.ElementTree import Element, SubElement, Comment
 from xml.etree import ElementTree
 from xml.dom import minidom
-import urllib
 import re
 import logging
 import os.path
 import base64
 import time
+import urllib2, urllib
 
 __applicationName__ = "rlatex"
+__version__ = "0.7"
+__date__ = "October 19th, 2012"
+__website__ = "http://pacbard.github.com/RLatex"
+__author__ = "Emanuele 'pacbard' Bardelli (bardellie at gmail dot com)"
 
 __doc__ = """
 Process a LaTex file using a CLSI server.
@@ -29,7 +33,8 @@ Options:
     -c, --compiler      sets the LaTeX Compiler
     -o, --output        sets the LaTeX output file
     -l, --log:          saves the log file
-    -d, --debug:          debug version of the script
+    -d, --debug:        debug version of the script
+    --async             compiles asynchronously
 
 Exclude http:// from the server URL, since `http://' will be prepended to
 by the script.
@@ -50,12 +55,6 @@ The CLSI interface supports the following compilers and outputs:
 
 See the RLaTeX documentation for more details on usage and limitations
 of rlatex."""
-
-__version__ = "0.4"
-__date__ = "October 7th, 2012"
-__website__ = "http://pacbard.github.com/RLatex"
-
-__author__ = "Emanuele 'pacbard' Bardelli (bardellie at gmail dot com)"
 
 __licenseName__ = "GPL v2"
 __license__ = """
@@ -133,6 +132,7 @@ class rlatex(object):
         self.login = self.scriptPath()+'/login.txt'
         self.compiler = 'pdflatex'
         self.output = 'pdf'
+        self.sync = True
 
     def compile(self, argv):
         """
@@ -203,7 +203,7 @@ class rlatex(object):
         
         try:
             opts, file = getopt.getopt(argv[1:], 'hlds:a:t:f:l:c:o:',
-                                ['help', 'log', 'debug', 'server=', 'api_url=', 'token=', 'file=', 'compiler=', 'output='])
+                                ['help', 'log', 'debug', 'async' , 'server=', 'api_url=', 'token=', 'file=', 'compiler=', 'output='])
         except getopt.GetoptError as err:
             print(str(err), __doc__ , sep='\n\n')
             sys.exit(2)
@@ -234,6 +234,8 @@ class rlatex(object):
                 self.output = a
             elif o in ('-d', '--debug'):
                 self.debug = True
+            elif o in ('--async'):
+                self.sync = False
                                         
         # Splits the argument in the path and the source
         self.texpath, self.texsource = os.path.split(file[0])
@@ -280,19 +282,58 @@ class rlatex(object):
         webservice = httplib.HTTP(self.host)
         webservice.putrequest("POST", self.api_url)
         webservice.putheader("Host", self.host)
-        webservice.putheader("User-Agent","Remote Laxet 0.1a")
+        webservice.putheader("User-Agent",__applicationName__+__version__ )
         webservice.putheader("Content-type", "text/xml; charset=\"UTF-8\"")
         webservice.putheader("Content-length", "%d" % len(xml_request))
         webservice.endheaders()
         webservice.send(xml_request)
         statuscode, statusmessage, header = webservice.getreply()
         result = webservice.getfile().read()
+        id = self.getTag(result, 'compile_id')
         if self.debug:
             logging.info("XML request")
             logging.info(xml_request)
             logging.info("XML request result")
             logging.info(result)
+        while self.getTag(result, 'status') == "unprocessed":
+            time.sleep(0.2)
+            result = self.downloadID(id)
+            if self.debug:
+                logging.info("Unprocessed Request found")
+                logging.info("XML request result")
+                logging.info(result)
         return result
+    
+    def getTag(self, xml, tag):
+        tree = ElementTree.fromstring(xml)
+        return tree.findtext(tag)
+    
+    def downloadID(self, id):
+        '''
+        Downloads the result.xml for the compile ID
+        
+        downloadID() handles the download of the result.xml file during asynchronous
+        compilation.  At this time, the CLSI server returns an error 404 instead
+        of a "compilation in progress" XML object, so this function hammers the
+        server until a response is created by the server
+        '''
+        try:
+            url = "http://"+self.host+"/output/"+id+"/response.xml"
+            response = urllib2.urlopen(url).read()
+        except urllib2.HTTPError, err:
+            # Bug in the CLSI server, needs to continue to request the file
+            if err.code == 404:
+                if self.debug:
+                    logging.info("Error 404. Retrying")
+                time.sleep(1)
+                response = self.downloadID(id)
+            else:
+                print ("Something happened! Error code", err.code)
+                sys.exit()
+        except urllib2.URLError, err:
+            print ("Some other error happened:", err.reason)
+            sys.exit()
+        return response
     
     def buildRequest(self, path, source):
         """
@@ -318,7 +359,9 @@ class rlatex(object):
         output.text = self.output
         compiler = SubElement(options, "compiler")
         compiler.text = self.compiler
-        
+        if not self.sync:
+            async = SubElement(options, "asynchronous")
+            async.text = 'true'
         resources = SubElement(compile, "resources")
         resources.set("root-resource-path", source+".tex")
         
@@ -374,7 +417,7 @@ class rlatex(object):
                                 if self.debug:
                                     logging.info("Saving output in :"+self.texpath+filename+"."+self.output)
                                 output = child2.get('url')
-                                urllib.urlretrieve (output, self.texpath+filename+"."+self.output)
+                                urllib.urlretrieve(output, self.texpath+filename+"."+self.output)
                 # Compilation not successful
                 else:
                     for child in tree.getchildren():
@@ -386,7 +429,7 @@ class rlatex(object):
                         elif child.tag == 'logs':
                             for child2 in child.getchildren():
                                 logs = child2.get('url')
-                                log = urllib.urlopen(logs).read()
+                                log = urllib2.urlopen(logs).read()
                                 print(log)
                                 if self.log:
                                     logFile = open(self.texpath+filename+".log", 'w')
@@ -396,7 +439,7 @@ class rlatex(object):
             if child.tag == 'logs':
                 for child2 in child.getchildren():
                     logs = child2.get('url')
-                    log = urllib.urlopen(logs).read()
+                    log = urllib2.urlopen(logs).read()
                     print(log)
                     if self.log:
                         logFile = open(self.texpath+filename+".log", 'w')
