@@ -296,10 +296,10 @@ class rlatex(object):
             logging.info("XML request result")
             logging.info(result)
         while self.getTag(result, 'status') == "unprocessed":
-            time.sleep(0.2)
             result = self.downloadID(id)
             if self.debug:
                 logging.info("Unprocessed Request found")
+                logging.info(xml_request)
                 logging.info("XML request result")
                 logging.info(result)
         return result
@@ -318,6 +318,7 @@ class rlatex(object):
         server until a response is created by the server
         '''
         try:
+            time.sleep(1)
             url = "http://"+self.host+"/output/"+id+"/response.xml"
             response = urllib2.urlopen(url).read()
         except urllib2.HTTPError, err:
@@ -325,7 +326,6 @@ class rlatex(object):
             if err.code == 404:
                 if self.debug:
                     logging.info("Error 404. Retrying")
-                time.sleep(1)
                 response = self.downloadID(id)
             else:
                 print ("Something happened! Error code", err.code)
