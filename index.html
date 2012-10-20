@@ -45,6 +45,7 @@
     -o, --output        sets the LaTeX output file
     -l, --log:          saves the log file
     -d, --debug:        debug version of the script
+    --async             compiles asynchronously
 </code></pre>
 
 <p>You can hard-code the filename from which to read login information into
@@ -65,6 +66,16 @@ asked to provide them.</p>
 <p>If the compiler and/or the output format are not specified as arguments,
 RLatex will use <code>pdflatex</code> as compiler and <code>pdf</code> as output format. For this
 reason, most user will not need to specify a compiler or output formats.</p>
+
+<h3>Asynchronous Compilation</h3>
+
+<p>Asynchronous compilation is supported using the parameter <code>--async</code>.  In this 
+case, the connection to the server will be closed once the files are uploaded and
+the script will check at given time intervals if the compilation was completed.</p>
+
+<p>Please, note that at this time there is a bug in the CLSI server.  Asynchronous
+compilation returns a <strong>404 error</strong> if the compilation is in progress instead of the
+expected "<strong>compilation in progress</strong>" message.</p>
 
 <hr><p>See the RLaTeX documentation for more details on usage and limitations
 of rlatex.</p>
