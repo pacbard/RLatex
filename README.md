@@ -48,3 +48,7 @@ expected "**compilation in progress**" message.
 
 See the RLaTeX documentation for more details on usage and limitations
 of rlatex.
+
+## License
+
+MIT: http://pacbard.mit-license.org/
