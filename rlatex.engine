@@ -1,0 +1,10 @@
+#!/bin/bash
+
+export RLBIN="$HOME/Library/TeXShop/bin/rlatex.py"
+
+# make sure rlatex.py exists in bin
+if [ ! -e "${RLBIN}" ] ; then
+  echo "rlatex.py not found"
+	curl https://raw.github.com/pacbard/RLatex/master/rlatex.py > ${RLBIN}
+fi
+python ${RLBIN} -f ~/.rlatex/login "$1"
