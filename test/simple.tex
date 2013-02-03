@@ -200,29 +200,6 @@ following:
 
 \end{itemize}
 
-\section{Figures}
-
-We can make figures bigger or smaller by scaling them. Figure~\ref{fig:lj}
-has been scaled by 60\%.
-
-\begin{figure}[h]
-\begin{center}
-\includegraphics{figures/sine}
-\caption{\label{fig:typical}Show me a sine.}
-\end{center}
-\end{figure}
-
-\begin{figure}[h]
-\begin{center}
-\scalebox{0.6}{\includegraphics{figures/lj}}
-\caption{\label{fig:lj}Plot of the
-Lennard-Jones potential
-$u(r)$. The potential is characterized by a length
-$\sigma$ and an energy
-$\epsilon$.}
-\end{center}
-\end{figure}
-
 \section{Literal text}
 It is desirable to print program code exactly as it is typed in a
 monospaced font. Use \verb \begin{verbatim} and
@@ -234,9 +211,6 @@ double t = 0;   // time
 double dt = 0.01; // time step
 double y = y0;
 \end{verbatim}
-The command \verb \verbatiminput{programs/Square.java}\ allows
-you to list the file \texttt{Square.java} in the directory
-programs.
 
 \section{Special Symbols}
 
@@ -302,32 +276,6 @@ The space can be negative.
 
 {\color{blue}{We can change colors for emphasis}},
 {\color{green}{but}} {\color{cyan}{who is going pay for the ink?}}
-
-\section{\label{morefig}Subfigures}
-
-As soon as many students start becoming comfortable using \LaTeX, they want
-to use some of its advanced features. So we now show how to place two
-figures side by side.
-
-\begin{figure}[h!]
-\begin{center}
-\subfigure[Real and imaginary.]{
-\includegraphics[scale=0.5]{figures/reim}}
-\subfigure[Amplitude and phase.]{
-\includegraphics[scale=0.5]{figures/phase}}
-\caption{\label{fig:qm/complexfunctions} Two representations of complex
-wave functions.}
-\end{center}
-\end{figure}
-
-We first have to include the necessary package,
-\verb+\usepackage{subfigure}+, which has to go in the preamble (before
-\verb+\begin{document}+). It sometimes can be difficult to place a figure in
-the desired place.
-
-Your LaTeX document can be easily modified to make a poster or a screen
-presentation similar to (and better than) PowerPoint. Conversion to HTML is
-straightforward. Comments on this tutorial are appreciated.
 
 \begin{thebibliography}{5}
 
