@@ -1,0 +1,75 @@
+% Copyright (C) 2009-2011 by Tim Molteno <tim@physics.otago.ac.nz>
+%
+% This file may be redistributed and/or
+% modified under the terms of the GNU General Public License as
+% published by the Free Software Foundation, either version 2 of the
+% License, or (at your option) any later version. To view a copy of this
+% license, see http://www.gnu.org/licenses/ or send a letter to
+% the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+% Boston, MA 02110-1301, USA.
+
+%rubber: onchange sympytest.sympy "python sympytest.sympy && pdflatex sympytest.tex"
+
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{sympytex}
+
+\title{SympyTeX example}
+\author{Tim Molteno\thanks{tim@physics.otago.ac.nz}}
+
+
+\begin{document}
+
+\maketitle
+
+\section{Important! Setting up Your \LaTeX environment}
+
+To use SympyTeX, you have to run latex (or pdflatex) on your file, then python, and then latex again. 
+\begin{verbatim}
+ latex example.tex
+ python example.sympy
+ latex example.tex
+\end{verbatim}
+If you use Kile, or another \LaTeX environment, you can set it up to automatically do the
+sympy python command as part of your build process.
+
+\section{Introduction}
+
+Using sympy within your \LaTeX document is as easy as $2+2=\sympy{2+2}$. 
+
+You can write a block, and then use the variables defined later in your code!
+\begin{sympyblock}
+x = sympy.Symbol('x')
+h = sympy.integrate(1+x,x)
+\end{sympyblock}
+The variable $h$, how can be called using {\verb \sympy{h} }, and you will get $h = \sympy{h}$. Similarly, the integral of $1+x^4$ is $\sympy{sympy.integrate(1+x**4,x)}$.
+
+\section{sympyplain}
+
+The sympyplain command places the sympy output as text (rather than LaTeX formatted math stuff). This is really useful if the output is huge as formulae don't line wrap.
+
+The integral of $1+x^4$ is also \sympyplain{sympy.integrate(1+x**4,x)}.
+
+\begin{sympyblock}
+from sympy import *
+e = 1/cos(x)
+\end{sympyblock}
+The series expansion is $\sympy{e.series(x, 0, 10)}$.
+
+\subsection{Invisibly sympy code}
+
+Placing a {\tt sympysilent} block in your code, allows you do do things like define
+symbols without making a mess.
+\begin{sympysilent}
+theta = sympy.Symbol('theta')
+from sympy import *
+def RotationMatrixZ(angle):
+  return Matrix([[cos(angle), -sin(angle), 0],[sin(angle), cos(angle),0],[0,0,1]])
+\end{sympysilent}
+The rotation matrix is through an angle $\theta$ around the $z$-axis is
+\[ R(\theta) = \sympy{RotationMatrixZ(theta)}. \]
+
+\end{document}
+
