@@ -10,11 +10,11 @@ import logging
 import os.path
 import base64
 import time
-import urllib2, urllib
+import urllib
 
 __applicationName__ = "rlatex"
-__version__ = "0.7"
-__date__ = "October 19th, 2012"
+__version__ = "0.7.1"
+__date__ = "February 3rd, 2013"
 __website__ = "http://pacbard.github.com/RLatex"
 __author__ = "Emanuele 'pacbard' Bardelli (bardellie at gmail dot com)"
 
@@ -429,7 +429,7 @@ class rlatex(object):
                         elif child.tag == 'logs':
                             for child2 in child.getchildren():
                                 logs = child2.get('url')
-                                log = urllib2.urlopen(logs).read()
+                                log = urllib.urlopen(logs).read()
                                 print(log)
                                 if self.log:
                                     logFile = open(self.texpath+filename+".log", 'w')
@@ -439,7 +439,7 @@ class rlatex(object):
             if child.tag == 'logs':
                 for child2 in child.getchildren():
                     logs = child2.get('url')
-                    log = urllib2.urlopen(logs).read()
+                    log = urllib.urlopen(logs).read()
                     print(log)
                     if self.log:
                         logFile = open(self.texpath+filename+".log", 'w')
