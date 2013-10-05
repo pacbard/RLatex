@@ -49,7 +49,7 @@ compilation returns a **404 error** if the compilation is in progress instead of
 expected "**compilation in progress**" message.
 
 ### Compile to Windows Executible
-It is possible to compile this script to a one Windows executible using ```pyinstaller```.
+It is possible to compile this script to a one Windows executible using ```pyinstaller rlatex.py```.
 
 
 ***
