@@ -13,8 +13,8 @@ import time
 import urllib
 
 __applicationName__ = "rlatex"
-__version__ = "0.7.1"
-__date__ = "February 3rd, 2013"
+__version__ = "0.8"
+__date__ = "October 5th, 2013"
 __website__ = "http://pacbard.github.com/RLatex"
 __author__ = "Emanuele 'pacbard' Bardelli (bardellie at gmail dot com)"
 
@@ -36,31 +36,18 @@ Options:
     -d, --debug:        debug version of the script
     --async             compiles asynchronously
 
-Exclude http:// from the server URL, since `http://' will be prepended to
-by the script.
-At this time, https:// are not supported by the CLSI server.
-
-You can hard-code the filename from which to read login information into
-the rlatex script. Command-line arguments take precedence over
-the contents of that file. See the RLaTeX documentation for formatting
-details.
-
-If any of the server, username, and password are omitted, you will be
-asked to provide them.
-
 The CLSI interface supports the following compilers and outputs:
     pdflatex    pdf
     latex       dvi, pdf, ps
     xelatex     pdf
+    standalone  png, jpg
+"""
 
-See the RLaTeX documentation for more details on usage and limitations
-of rlatex."""
-
-__licenseName__ = "GPL v2"
+__licenseName__ = "GPL v3"
 __license__ = """
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 2 of the License, or
+the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
