@@ -5,6 +5,10 @@ login.txt
 *~
 *.log
 *.pdf
+*.png
+*.jpg
+*.tiff
+*.bmp
 build
 dist
 doc
