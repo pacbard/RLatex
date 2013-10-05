@@ -30,10 +30,14 @@ RLatex supports multiple compilers and output formats:
     pdflatex    pdf
     latex       dvi, pdf, ps
     xelatex     pdf
+    standalone  png, jpg, tiff, bmp
 ```
 If the compiler and/or the output format are not specified as arguments,
 RLatex will use ```pdflatex``` as compiler and ```pdf``` as output format. For this
 reason, most user will not need to specify a compiler or output formats.
+
+If the ```standalone``` compiler option is selected, please refer to the ```standalone``` 
+package documentation for more information.
 
 ### Asynchronous Compilation
 Asynchronous compilation is supported using the parameter ```--async```.  In this 
