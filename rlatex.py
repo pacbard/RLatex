@@ -19,7 +19,7 @@ __website__ = "http://pacbard.github.com/RLatex"
 __author__ = "Emanuele 'pacbard' Bardelli (bardellie at gmail dot com)"
 
 __doc__ = """
-Process a LaTex file using a CLSI server.
+A CLSI server command line client.
 
 Usage: {0} [options] inputfile.tex
 
@@ -45,6 +45,9 @@ The CLSI interface supports the following compilers and outputs:
 
 __licenseName__ = "GPL v3"
 __license__ = """
+RLatex - A CLSI server command line client.
+Copyright (C) 2013  Emanuele Bardelli <bardellie@gmail.com>
+
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
