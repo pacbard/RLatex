@@ -147,8 +147,12 @@ class rlatex(object):
         self.loadLogin()
         
         XMLrequest = self.buildRequest(self.texpath, self.texsource)
-        toDownload = self.do_request(XMLrequest)
-        self.fetchResult(toDownload)
+        try:
+            toDownload = self.do_request(XMLrequest)
+        except Exception, e:
+            sys.exit("No output from the server")
+        else:
+            self.fetchResult(toDownload)
     
     def loadLogin(self):
         """
