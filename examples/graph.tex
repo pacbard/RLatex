@@ -1,0 +1,18 @@
+\documentclass[convert={density=600,outext=.png}]{standalone}
+
+\usepackage{tikz}
+
+\begin{document}
+\definecolor{qqzzff}{rgb}{0,0.6,1}
+\begin{tikzpicture}[line cap=round,line join=round,x=1.0cm,y=1.0cm]
+\draw[->,color=black] (-6.28,0) -- (6.28,0);
+\foreach \x in {-6,-5,-4,-3,-2,-1,1,2,3,4,5,6}
+\draw[shift={(\x,0)},color=black] (0pt,2pt) -- (0pt,-2pt) node[below] {\footnotesize $\x$};
+\draw[->,color=black] (0,-1.5) -- (0,1.5);
+\foreach \y in {-1,1}
+\draw[shift={(0,\y)},color=black] (2pt,0pt) -- (-2pt,0pt) node[left] {\footnotesize $\y$};
+\draw[color=black] (0pt,-10pt) node[right] {\footnotesize $0$};
+\clip(-6.28,-1.5) rectangle (6.28,1.5);
+\draw[color=qqzzff, smooth,samples=100,domain=-6.28:6.28] plot(\x,{sin(((\x))*180/pi)});
+\end{tikzpicture}
+\end{document}
