@@ -4,7 +4,7 @@
   <head>
     <meta charset='utf-8' />
     <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Rlatex : Python interface to a LaTeX CLSI server" />
+    <meta name="description" content="Rlatex : A CLSI command line client." />
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
@@ -19,7 +19,7 @@
           <a id="forkme_banner" href="https://github.com/pacbard/RLatex">View on GitHub</a>
 
           <h1 id="project_title">Rlatex</h1>
-          <h2 id="project_tagline">Python interface to a LaTeX CLSI server</h2>
+          <h2 id="project_tagline">A CLSI command line client.</h2>
 
             <section id="downloads">
               <a class="zip_download_link" href="https://github.com/pacbard/RLatex/zipball/master">Download this project as a .zip file</a>
@@ -31,7 +31,8 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <p>A python interface to a LaTeX CLSI server</p>
+        <h1>
+<a name="rlatex" class="anchor" href="#rlatex"><span class="octicon octicon-link"></span></a>RLatex</h1>
 
 <p>Usage: <code>python rlatex.py [options] inputfile.tex</code></p>
 
@@ -62,11 +63,15 @@ asked to provide them.</p>
 <pre><code>    pdflatex    pdf
     latex       dvi, pdf, ps
     xelatex     pdf
+    standalone  png, jpg, tiff, bmp
 </code></pre>
 
 <p>If the compiler and/or the output format are not specified as arguments,
 RLatex will use <code>pdflatex</code> as compiler and <code>pdf</code> as output format. For this
 reason, most user will not need to specify a compiler or output formats.</p>
+
+<p>If the <code>standalone</code> compiler option is selected, please refer to the <code>standalone</code> 
+package documentation for more information.</p>
 
 <h3>
 <a name="asynchronous-compilation" class="anchor" href="#asynchronous-compilation"><span class="octicon octicon-link"></span></a>Asynchronous Compilation</h3>
@@ -77,10 +82,35 @@ the script will check at given time intervals if the compilation was completed.<
 
 <p>Please, note that at this time there is a bug in the CLSI server.  Asynchronous
 compilation returns a <strong>404 error</strong> if the compilation is in progress instead of the
-expected "**compilation in progress**" message.</p>
+expected "<strong>compilation in progress</strong>" message.</p>
+
+<h3>
+<a name="compile-to-windows-executible" class="anchor" href="#compile-to-windows-executible"><span class="octicon octicon-link"></span></a>Compile to Windows Executible</h3>
+
+<p>It is possible to compile this script to a one Windows executible using <code>pyinstaller rlatex.py</code>.</p>
 
 <hr><p>See the RLaTeX documentation for more details on usage and limitations
 of rlatex.</p>
+
+<h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>RLatex - A CLSI command line client.</p>
+
+<p>Copyright (C) 2013  Emanuele Bardelli <a href="mailto:bardellie@gmail.com">bardellie@gmail.com</a></p>
+
+<p>This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.</p>
+
+<p>This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.</p>
+
+<p>You should have received a copy of the GNU General Public License
+along with this program.  If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.</p>
       </section>
     </div>
 
