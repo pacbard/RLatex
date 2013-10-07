@@ -211,7 +211,7 @@ class rlatex(object):
         for o, a in opts:
             if o in ('-h', '--help'):
                 print(usage)
-                sys.exit()
+                sys.exit(2)
             elif o in ('-s', '--server'):
                 self.host = a
             elif o in ('-a', '--api_url'):
@@ -322,11 +322,9 @@ class rlatex(object):
                     logging.info("Error 404. Retrying")
                 response = self.downloadID(id)
             else:
-                print ("Something happened! Error code", err.code)
-                sys.exit()
+                sys.exit("Something happened! Error code "+err.code)
         except urllib2.URLError, err:
-            print ("Some other error happened:", err.reason)
-            sys.exit()
+            sys.exit("Some other error happened: "+err.reason)
         return response
 
     def buildRequest(self, path, source):
@@ -429,7 +427,7 @@ class rlatex(object):
                                     logFile = open(self.texpath+filename+".log", 'w')
                                     logFile.write(log)
                                     logFile.close()
-                    sys.exit()
+                    sys.exit(1)
             if child.tag == 'logs':
                 for child2 in child.getchildren():
                     logs = child2.get('url')
@@ -457,8 +455,10 @@ class rlatex(object):
         sorce code. To specify an option, use the command
         %rlatex: cmd options
         """
-
-        load_profile = open(file, "r")
+        try:
+            load_profile = open(file, "r")
+        except IOError:
+            sys.exit("File "+ file  +" is not readable. Does it exist?")
         read_it = load_profile.read()
         myFiles = []
         for line in read_it.splitlines():
