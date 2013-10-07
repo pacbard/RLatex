@@ -65,18 +65,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class FSM(object):
     """
     Implements a finite state machine.
-    
+
     Transitions are given as 4-tuples, consisting of an origin state, a target
     state, a condition for the transition (given as a reference to a function
     which gets called with a given piece of input) and a pointer to a function
-    to be called upon the execution of the given transition. 
-    
+    to be called upon the execution of the given transition.
+
     \var transitions holds the transitions
     \var current_state holds the current state
     \var current_input holds the current input
     \var current_transition hold the currently active transition
     """
-    
+
     def __init__(self, start_state=None, transitions=[]):
         self.transitions = transitions
         self.current_state = start_state
@@ -92,10 +92,10 @@ class FSM(object):
     def makeTransition(self, input):
         """
         Makes a transition based on the given input.
-        
+
         @param input input to parse by the FSM
         """
-        
+
         for transition in self.transitions:
             [from_state, to_state, condition, callback] = transition
             if from_state == self.current_state:
@@ -113,10 +113,10 @@ class rlatex(object):
     def __init__(self):
         """
         Init function
-        
+
         __init__() initializes the class variables to None or False
         """
-        
+
         self.host, self.api_url, self.token, self.texsource, self.texpath = (None,) * 5
         self.log, self.debug = (False,) *2
         self.login = self.scriptPath()+'/login.txt'
@@ -127,15 +127,15 @@ class rlatex(object):
     def compile(self, argv):
         """
         Compile function
-        
+
         Compile function.  This wraps the compile task
         @param argv The command line arguments passed by the user
         """
-        
+
         self.manageArgv(argv)
-        
+
         self.loadLogin()
-        
+
         XMLrequest = self.buildRequest(self.texpath, self.texsource)
         try:
             toDownload = self.do_request(XMLrequest)
@@ -143,20 +143,20 @@ class rlatex(object):
             sys.exit("No output from the server")
         else:
             self.fetchResult(toDownload)
-    
+
     def loadLogin(self):
         """
         Loads login information or asks them through command line
-        
+
         This function loads the default login file.  If the login file was
         passed using the argument -f, it should just skip it.
-        You can provide a filename here and the script will read your login 
+        You can provide a filename here and the script will read your login
         information from that file. The format must be:
          * server = 'foo.com'
          * api_url = 'clsi/compile'
          * token = 'token'
         """
-        
+
         try:
             with open(self.login, 'r') as f:
                 if self.debug:
@@ -181,33 +181,33 @@ class rlatex(object):
             self.api_url = raw_input('Enter API URL: ')
         if not self.token:
             self.token = raw_input('Enter token:  ')
-        
+
         # Screen confirmation of the settings
         if self.debug:
             logging.info("Server: " + self.host)
             logging.info("API URL: " + self.api_url)
             logging.info("Token: " + self.token)
-    
+
     def manageArgv(self, argv):
         """
         Argument management
-        
+
         Checks if all the flags are correct
         """
-        
+
         try:
             opts, file = getopt.getopt(argv[1:], 'hlds:a:t:f:l:c:o:',
                                 ['help', 'log', 'debug', 'async' , 'server=', 'api_url=', 'token=', 'file=', 'compiler=', 'output='])
         except getopt.GetoptError as err:
             print(str(err), __doc__ , sep='\n\n')
             sys.exit(2)
-        
+
         # Exits if more than one file is passed to the script
         # @todo check if pdflatex supports more than one argument
         if len(file) != 1:
             print('Error: must specify exactly one file. Please specify options first.',__doc__, sep='\n\n')
             sys.exit(2)
-            
+
         for o, a in opts:
             if o in ('-h', '--help'):
                 print(usage)
@@ -230,24 +230,24 @@ class rlatex(object):
                 self.debug = True
             elif o in ('--async'):
                 self.sync = False
-                                        
+
         # Splits the argument in the path and the source
         self.texpath, self.texsource = os.path.split(file[0])
-        
+
         if self.texpath != "":
             self.texpath += "/"
-        
+
         # Gets the file name without the extension
         self.texsource = os.path.splitext(self.texsource)[0]
-        
+
         # Starts the logger if debug flag is TRUE
         if self.debug:
             logging.basicConfig(filename=self.texpath+'debug.log',level=logging.DEBUG, format='%(asctime)s\n%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
-    
+
     def scriptPath(self):
         """
         Returns the script installation path
-        
+
         scriptPath() returns the script path.
         If the application is compiled with py2exe, it will use the
         frozen status.
@@ -255,7 +255,7 @@ class rlatex(object):
         directory of the script.
         @return string The script path
         """
-        
+
         if hasattr(sys, 'frozen'):
             basis = sys.executable
         else:
@@ -265,14 +265,14 @@ class rlatex(object):
     def do_request(self, xml_request):
         """
         Posts the XML request
-        
+
         do_request posts the XML request to the CLSI server.
         This is based on HTTP XML Post request, by www.forceflow.be
         It returns the server response to the request.
-        If the --debug flag is set, it will dump the XML request and the 
+        If the --debug flag is set, it will dump the XML request and the
         server response in the debug file.
         """
-        
+
         webservice = httplib.HTTP(self.host)
         webservice.putrequest("POST", self.api_url)
         webservice.putheader("Host", self.host)
@@ -297,15 +297,15 @@ class rlatex(object):
                 logging.info("XML request result")
                 logging.info(result)
         return result
-    
+
     def getTag(self, xml, tag):
         tree = ElementTree.fromstring(xml)
         return tree.findtext(tag)
-    
+
     def downloadID(self, id):
         '''
         Downloads the result.xml for the compile ID
-        
+
         downloadID() handles the download of the result.xml file during asynchronous
         compilation.  At this time, the CLSI server returns an error 404 instead
         of a "compilation in progress" XML object, so this function hammers the
@@ -328,11 +328,11 @@ class rlatex(object):
             print ("Some other error happened:", err.reason)
             sys.exit()
         return response
-    
+
     def buildRequest(self, path, source):
         """
         Builds the XML request
-        
+
         buildRequest() builds the XML request from the .tex source file.
         As of version 0.3, it searches for included file in the source
         file.  See findIncluded() documentation for more details.
@@ -340,14 +340,14 @@ class rlatex(object):
         As of verion 0.6, it uses either UTF-8 (whenever possible) or base 64 (as
         fallback encoding) for the input files
         """
-        
+
         toCompile = [source+".tex"] + self.findIncluded(path+source+".tex")
-        
+
         compile = Element("compile")
-        
+
         token = SubElement(compile, "token")
         token.text = self.token
-        
+
         options = SubElement(compile, "options")
         output = SubElement(options, "output-format")
         output.text = self.output
@@ -358,17 +358,17 @@ class rlatex(object):
             async.text = 'true'
         resources = SubElement(compile, "resources")
         resources.set("root-resource-path", source+".tex")
-        
+
         for file in toCompile:
             try:
                 with open(path+file,"rb") as f:
                     cdata = f.read()
                     resource = SubElement(resources, "resource")
                     resource.set("path", file)
-                    try: 
+                    try:
                         content = cdata.decode('utf-8')
                         resource.set("encoding", 'utf-8')
-                        resource.text = "<![CDATA["+content+"]]>" 
+                        resource.text = "<![CDATA["+content+"]]>"
                         if self.debug:
                             logging.info(file+" encoded using UTF-8")
                     except ValueError:
@@ -378,27 +378,27 @@ class rlatex(object):
                         if self.debug:
                             logging.info(file+" encoded using base64")
                     finally:
-                        resource.set("modified", time.strftime('%Y-%m-%d %H:%M:%S'))  
+                        resource.set("modified", time.strftime('%Y-%m-%d %H:%M:%S'))
             except IOError as e:
                 if self.debug:
                     logging.error("File included as "+file+" could not be found.")
-        
+
         string = ElementTree.tostring(compile, encoding="utf-8", method="xml").replace('&gt;', '>').replace('&lt;', '<').replace('&amp;', '&')
-        
+
         return string
 
     def fetchResult(self, response):
         """
         Parses the server response and downloads compiled files
-        
+
         fetchResult() parses the CLSI server XML response and downloads the
         PDF file if the CLSI was able to compile the input file.  The log file
         is automatically deleted, unless the --log flag is passed to the script.
         If not, it downloads the log file and terminates the execution of the script.
         """
-        
+
         filename = self.texsource
-        
+
         tree = ElementTree.fromstring(response)
         for child in tree.getchildren():
             if child.tag == 'status':
@@ -442,10 +442,10 @@ class rlatex(object):
 
     def findIncluded(self, file):
         """
-        Finds the included files
-        
+        Finds the included files and compiler options
+
         findIncluded() scans the source file for included files.
-        At this time (v0.3), it supports \input, \include, \includeonly, \thebibliography 
+        At this time (v0.3), it supports \input, \include, \includeonly, \thebibliography
         commands.
         If the included file is required by the LaTeX compiler but does not need to be
         included in the .tex file (e.g., a .sty file) use the command %\include{my.sty}
@@ -453,8 +453,11 @@ class rlatex(object):
         If no file extension is passes, this function will append the file extension
         .tex to files included with the commands \input, \include, and \includeonly
         and the file extension .bib for the files included with \thebibliography.
+        Verson 0.8.1 adds support for embedded compiler options in the latex
+        sorce code. To specify an option, use the command
+        %rlatex: cmd options
         """
-        
+
         load_profile = open(file, "r")
         read_it = load_profile.read()
         myFiles = []
@@ -479,13 +482,26 @@ class rlatex(object):
                         myFiles.append(file+".bib")
                     continue
                 continue
+            if "%rlatex" in line:
+                if self.debug:
+                    logging.info("RLatex command found at "+line)
+                cmd = re.split('\s+', line, 3)
+                if cmd[1] == 'compiler':
+                    self.compiler = cmd[2]
+                    if self.debug:
+                        logging.info("compiler set to "+self.compiler)
+                elif cmd[1] == 'output':
+                    self.output = cmd[2]
+                    if self.debug:
+                        logging.info("output set to "+self.output)
+                continue
         return myFiles
-    
+
 def main():
     """
     Main function
     """
-    
+
     fsm = rlatex()
     fsm.compile(sys.argv)
 
