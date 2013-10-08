@@ -466,21 +466,29 @@ class rlatex(object):
             if "\\include" in line or "\\input" in line:
                 if self.debug:
                     logging.info("Include found at "+line)
-                file = re.search(r'\{(.+)\}', line).group(1)
-                if "." in file:  # If file has an extension, keep it
-                    myFiles.append(file)
-                else:
-                    myFiles.append(file+".tex")
+                try:
+                    file = re.search(r'\{(.+)\}', line).group(1)
+                    if "." in file:  # If file has an extension, keep it
+                        myFiles.append(file)
+                    else:
+                        myFiles.append(file+".tex")
+                except AttributeError:
+                    if self.debug:
+                        logging.info("Include found at "+line+" does not specify a file")
                 continue
             elif "\\bibliography" in line:
                 if not "\\bibliographystyle" in line:
                     if self.debug:
                         logging.info("Include found at "+line)
-                    file = re.search(r'\{(.+)\}', line).group(1)
-                    if file.endswith(('.bib')):  # If file has an extension, keep it
-                        myFiles.append(file)
-                    else:
-                        myFiles.append(file+".bib")
+                    try:
+                        file = re.search(r'\{(.+)\}', line).group(1)
+                        if file.endswith(('.bib')):  # If file has an extension, keep it
+                            myFiles.append(file)
+                        else:
+                            myFiles.append(file+".bib")
+                    except AttributeError:
+                        if self.debug:
+                            logging.info("Skipping "+line+". It does not specify a file")
                     continue
                 continue
             if "%rlatex" in line:
