@@ -11,6 +11,7 @@ import os.path
 import base64
 import time
 import urllib
+import shlex
 
 __applicationName__ = "rlatex"
 __version__ = "0.8"
@@ -485,7 +486,7 @@ class rlatex(object):
             if "%rlatex" in line:
                 if self.debug:
                     logging.info("RLatex command found at "+line)
-                cmd = re.split('\s+', line, 3)
+                cmd = shlex.split(line)
                 if cmd[1] == 'compiler':
                     self.compiler = cmd[2]
                     if self.debug:
@@ -494,6 +495,13 @@ class rlatex(object):
                     self.output = cmd[2]
                     if self.debug:
                         logging.info("output set to "+self.output)
+                elif cmd[1] == 'include':
+                    if self.debug:
+                        logging.info("including file "+cmd[2])
+                    if "." in cmd[2]:  # If file has an extension, keep it
+                        myFiles.append(cmd[2])
+                    else:
+                        myFiles.append(cmd[2]+".tex")   # Fallback extension is .tex
                 continue
         return myFiles
 
