@@ -125,7 +125,7 @@ class rlatex(object):
         self.output = 'pdf'
         self.sync = True
         self.graphicspath = ['']
-    
+
     def _debug(self, msg):
         if self.debug:
             logging.info(msg)
@@ -246,7 +246,11 @@ class rlatex(object):
 
         # Starts the logger if debug flag is TRUE
         if self.debug:
-            logging.basicConfig(filename=self.texpath+'debug.log',level=logging.DEBUG, format='%(asctime)s\n%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+            logging.basicConfig(filename=self.texpath+'rlatex.log',
+                                filemode='w',
+                                level=logging.DEBUG,
+                                format='%(asctime)s\n%(message)s',
+                                datefmt='%m/%d/%Y %I:%M:%S %p')
 
     def scriptPath(self):
         """
