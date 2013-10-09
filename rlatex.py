@@ -124,6 +124,8 @@ class rlatex(object):
         self.compiler = 'pdflatex'
         self.output = 'pdf'
         self.sync = True
+        self.graphicspath = ['']
+    
 
     def compile(self, argv):
         """
@@ -463,9 +465,22 @@ class rlatex(object):
         read_it = load_profile.read()
         myFiles = []
         for line in read_it.splitlines():
-            if "\\include" in line or "\\input" in line:
+            if "\\graphicspath" in line:
                 if self.debug:
-                    logging.info("Include found at "+line)
+                    logging.info("Graphics path found at "+line)
+                s = re.search(r'\{(.+)\}', re.search(r'\{(.+)\}', line).group(1)).group(1)
+                self.graphicspath += re.split('}{', s)
+            if "\\includegraphics" in line:
+                file = re.search(r'\{(.+)\}', line).group(1)
+                for p in self.graphicspath:
+                    if "." in file:  # If file has an extension, keep it
+                        if os.path.exists(p+file):
+                            myFiles.append(p+file)
+                    else:
+                        if os.path.exists(p+file+".pdf"):
+                            myFiles.append(p+file+".pdf")
+                    continue
+            elif "\\include" in line or "\\input" in line:
                 try:
                     file = re.search(r'\{(.+)\}', line).group(1)
                     if "." in file:  # If file has an extension, keep it
@@ -475,7 +490,6 @@ class rlatex(object):
                 except AttributeError:
                     if self.debug:
                         logging.info("Include found at "+line+" does not specify a file")
-                continue
             elif "\\bibliography" in line:
                 if not "\\bibliographystyle" in line:
                     if self.debug:
@@ -489,9 +503,7 @@ class rlatex(object):
                     except AttributeError:
                         if self.debug:
                             logging.info("Skipping "+line+". It does not specify a file")
-                    continue
-                continue
-            if "%rlatex" in line:
+            elif "%rlatex" in line:
                 if self.debug:
                     logging.info("RLatex command found at "+line)
                 cmd = shlex.split(line)
@@ -510,7 +522,6 @@ class rlatex(object):
                         myFiles.append(cmd[2])
                     else:
                         myFiles.append(cmd[2]+".tex")   # Fallback extension is .tex
-                continue
         return myFiles
 
 def main():
