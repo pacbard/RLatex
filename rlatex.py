@@ -125,14 +125,14 @@ class rlatex(object):
         self.output = 'pdf'
         self.sync = True
         self.graphicspath = ['']
+        self.graphicextensions = ['.png', '.jpg', '.pdf']
 
     def _debug(self, msg):
         if self.debug:
             logging.info(msg)
 
-    def _parse(self, tex, args=[]):
+    def _parse(self, tex):
         a = []
-        a += args
         # Get content of outer {}
         c = re.search(r'\{(.+)\}', tex).group(1)
         # Split string at {
@@ -141,9 +141,8 @@ class rlatex(object):
             if "\\" not in elem:
                 # Delete leftover }
                 elem = elem.replace("}", "")
-                if elem != '':
-                    # Append if string is not empty
-                    a.append(elem)
+                #  Append if string is not empty
+                a += re.split(",", elem)
         return(a)
 
     def compile(self, argv):
@@ -474,7 +473,11 @@ class rlatex(object):
         for line in read_it.splitlines():
             if "\\graphicspath" in line:
                 self._debug("Graphics path found at "+line)
-                self.graphicspath = self._parse(line, self.graphicspath)
+                self.graphicspath += self._parse(line)
+            if "\\DeclareGraphicsExtensions" in line:
+                # This will overwrite default values
+                self.graphicextensions = self._parse(line)
+                self._debug("Graphic extensions now "+ ', '.join(self.graphicextensions))
             if "\\includegraphics" in line:
                 self._debug("Include graphics found at "+line)
                 file = self._parse(line)[0]
@@ -485,10 +488,10 @@ class rlatex(object):
                             self._debug("File "+p+file+" exists")
                             myFiles.add(p+file)
                     else:
-                        if os.path.exists(p+file+".pdf"):
-                            self._debug("File "+p+file+".pdf exists")
-                            myFiles.add(p+file+".pdf")
-                    continue
+                        for ext in self.graphicextensions:
+                            if os.path.exists(p+file+ext):
+                                self._debug("File "+p+file+ext+" exists")
+                                myFiles.add(p+file+ext)
             elif "\\include" in line or "\\input" in line:
                 self._debug("Include found at "+line)
                 try:
@@ -518,6 +521,10 @@ class rlatex(object):
                     self._debug("Compiler set to "+self.compiler)
                 elif cmd[1] == 'output':
                     self.output = cmd[2]
+                    if self.output != "pdf":
+                        self.graphicextensions = ['.eps']
+                        print(self.graphicextensions)
+                        sys.exit()
                     self._debug("output set to "+self.output)
                 elif cmd[1] == 'include':
                     self._debug("including file "+cmd[2])
@@ -526,6 +533,7 @@ class rlatex(object):
                     else:
                         myFiles.add(cmd[2]+".tex")   # Fallback extension is .tex
         myFiles= list(myFiles)
+        self._debug("Included files :"+', '.join(myFiles))
         return myFiles
 
 def main():
