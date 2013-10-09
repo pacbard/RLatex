@@ -130,6 +130,21 @@ class rlatex(object):
         if self.debug:
             logging.info(msg)
 
+    def _parse(self, tex, args=[]):
+        a = []
+        a += args
+        # Get content of outer {}
+        c = re.search(r'\{(.+)\}', tex).group(1)
+        # Split string at {
+        c = re.split("{", c)
+        for elem in c:
+            if "\\" not in elem:
+                # Delete leftover }
+                elem = elem.replace("}", "")
+                if elem != '':
+                    # Append if string is not empty
+                    a.append(elem)
+        return(a)
 
     def compile(self, argv):
         """
@@ -455,44 +470,44 @@ class rlatex(object):
         except IOError:
             sys.exit("File "+ file  +" is not readable. Does it exist?")
         read_it = load_profile.read()
-        myFiles = []
+        myFiles = set() 
         for line in read_it.splitlines():
             if "\\graphicspath" in line:
                 self._debug("Graphics path found at "+line)
-                s = re.search(r'\{(.+)\}', re.search(r'\{(.+)\}', line).group(1)).group(1)
-                self.graphicspath += re.split('}{', s)
+                self.graphicspath = self._parse(line, self.graphicspath)
             if "\\includegraphics" in line:
                 self._debug("Include graphics found at "+line)
-                file = re.search(r'\{(.+)\}', line).group(1)
+                file = self._parse(line)[0]
                 for p in self.graphicspath:
+                    self._debug("Searching for file "+p+file)
                     if "." in file:  # If file has an extension, keep it
                         if os.path.exists(p+file):
                             self._debug("File "+p+file+" exists")
-                            myFiles.append(p+file)
+                            myFiles.add(p+file)
                     else:
                         if os.path.exists(p+file+".pdf"):
                             self._debug("File "+p+file+".pdf exists")
-                            myFiles.append(p+file+".pdf")
+                            myFiles.add(p+file+".pdf")
                     continue
             elif "\\include" in line or "\\input" in line:
                 self._debug("Include found at "+line)
                 try:
-                    file = re.search(r'\{(.+)\}', line).group(1)
+                    file = self._parse(line)[0]
                     if "." in file:  # If file has an extension, keep it
-                        myFiles.append(file)
+                        myFiles.add(file)
                     else:
-                        myFiles.append(file+".tex")
+                        myFiles.add(file+".tex")
                 except AttributeError:
                     self._debug("Include found at "+line+" does not specify a file")
             elif "\\bibliography" in line:
                 if not "\\bibliographystyle" in line:
                     self._debug("Include found at "+line)
                     try:
-                        file = re.search(r'\{(.+)\}', line).group(1)
+                        file = self._parse(line)[0]
                         if file.endswith(('.bib')):  # If file has an extension, keep it
-                            myFiles.append(file)
+                            myFiles.add(file)
                         else:
-                            myFiles.append(file+".bib")
+                            myFiles.add(file+".bib")
                     except AttributeError:
                         self._debug("Skipping "+line+". It does not specify a file")
             elif "%rlatex" in line:
@@ -507,9 +522,10 @@ class rlatex(object):
                 elif cmd[1] == 'include':
                     self._debug("including file "+cmd[2])
                     if "." in cmd[2]:  # If file has an extension, keep it
-                        myFiles.append(cmd[2])
+                        myFiles.add(cmd[2])
                     else:
-                        myFiles.append(cmd[2]+".tex")   # Fallback extension is .tex
+                        myFiles.add(cmd[2]+".tex")   # Fallback extension is .tex
+        myFiles= list(myFiles)
         return myFiles
 
 def main():
