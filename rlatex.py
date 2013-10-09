@@ -126,6 +126,10 @@ class rlatex(object):
         self.sync = True
         self.graphicspath = ['']
     
+    def _debug(self, msg):
+        if self.debug:
+            logging.info(msg)
+
 
     def compile(self, argv):
         """
@@ -162,8 +166,7 @@ class rlatex(object):
 
         try:
             with open(self.login, 'r') as f:
-                if self.debug:
-                    logging.info('Login information found in file {0}.'.format(self.login))
+                self._debug('Login information found in file {0}.'.format(self.login))
                 get_val = lambda x: x.split('=')[1].strip().strip('\'"')
                 for line in f:
                     if not line.startswith('#'):
@@ -175,8 +178,7 @@ class rlatex(object):
                             self.token = get_val(line)
         except IOError as e:
             print (self.login, " not found")
-            if self.debug:
-                logging.warning(self.login + " not found")
+            self._debug(self.login + " not found")
 
         if not self.host:
             self.host = raw_input('Enter server: ')
@@ -186,10 +188,9 @@ class rlatex(object):
             self.token = raw_input('Enter token:  ')
 
         # Screen confirmation of the settings
-        if self.debug:
-            logging.info("Server: " + self.host)
-            logging.info("API URL: " + self.api_url)
-            logging.info("Token: " + self.token)
+        self._debug("Server: " + self.host)
+        self._debug("API URL: " + self.api_url)
+        self._debug("Token: " + self.token)
 
     def manageArgv(self, argv):
         """
@@ -287,18 +288,10 @@ class rlatex(object):
         statuscode, statusmessage, header = webservice.getreply()
         result = webservice.getfile().read()
         id = self.getTag(result, 'compile_id')
-        if self.debug:
-            logging.info("XML request")
-            logging.info(xml_request)
-            logging.info("XML request result")
-            logging.info(result)
+        self._debug("XML request\n"+xml_request+"\nXML request result\n"+result)
         while self.getTag(result, 'status') == "unprocessed":
             result = self.downloadID(id)
-            if self.debug:
-                logging.info("Unprocessed Request found")
-                logging.info(xml_request)
-                logging.info("XML request result")
-                logging.info(result)
+            self._debug("Unprocessed Request found\n"+xml_request+"\nXML request result\n"+result)
         return result
 
     def getTag(self, xml, tag):
@@ -321,8 +314,7 @@ class rlatex(object):
         except urllib2.HTTPError, err:
             # Bug in the CLSI server, needs to continue to request the file
             if err.code == 404:
-                if self.debug:
-                    logging.info("Error 404. Retrying")
+                self._debug("Error 404. Retrying")
                 response = self.downloadID(id)
             else:
                 sys.exit("Something happened! Error code "+err.code)
@@ -370,19 +362,16 @@ class rlatex(object):
                         content = cdata.decode('utf-8')
                         resource.set("encoding", 'utf-8')
                         resource.text = "<![CDATA["+content+"]]>"
-                        if self.debug:
-                            logging.info(file+" encoded using UTF-8")
+                        self._debug(file+" encoded using UTF-8")
                     except ValueError:
                         content = base64.b64encode(cdata)
                         resource.set("encoding", 'base64')
                         resource.text = "<![CDATA["+content+"]]>"
-                        if self.debug:
-                            logging.info(file+" encoded using base64")
+                        self._debug(file+" encoded using base64")
                     finally:
                         resource.set("modified", time.strftime('%Y-%m-%d %H:%M:%S'))
             except IOError as e:
-                if self.debug:
-                    logging.error("File included as "+file+" could not be found.")
+                self._debug("File included as "+file+" could not be found.")
 
         string = ElementTree.tostring(compile, encoding="utf-8", method="xml").replace('&gt;', '>').replace('&lt;', '<').replace('&amp;', '&')
 
@@ -409,8 +398,7 @@ class rlatex(object):
                     for child in tree.getchildren():
                         if child.tag == 'output':
                             for child2 in child.getchildren():
-                                if self.debug:
-                                    logging.info("Saving output in :"+self.texpath+filename+"."+self.output)
+                                self._debug("Saving output in :"+self.texpath+filename+"."+self.output)
                                 output = child2.get('url')
                                 urllib.urlretrieve(output, self.texpath+filename+"."+self.output)
                 # Compilation not successful
@@ -466,21 +454,24 @@ class rlatex(object):
         myFiles = []
         for line in read_it.splitlines():
             if "\\graphicspath" in line:
-                if self.debug:
-                    logging.info("Graphics path found at "+line)
+                self._debug("Graphics path found at "+line)
                 s = re.search(r'\{(.+)\}', re.search(r'\{(.+)\}', line).group(1)).group(1)
                 self.graphicspath += re.split('}{', s)
             if "\\includegraphics" in line:
+                self._debug("Include graphics found at "+line)
                 file = re.search(r'\{(.+)\}', line).group(1)
                 for p in self.graphicspath:
                     if "." in file:  # If file has an extension, keep it
                         if os.path.exists(p+file):
+                            self._debug("File "+p+file+" exists")
                             myFiles.append(p+file)
                     else:
                         if os.path.exists(p+file+".pdf"):
+                            self._debug("File "+p+file+".pdf exists")
                             myFiles.append(p+file+".pdf")
                     continue
             elif "\\include" in line or "\\input" in line:
+                self._debug("Include found at "+line)
                 try:
                     file = re.search(r'\{(.+)\}', line).group(1)
                     if "." in file:  # If file has an extension, keep it
@@ -488,12 +479,10 @@ class rlatex(object):
                     else:
                         myFiles.append(file+".tex")
                 except AttributeError:
-                    if self.debug:
-                        logging.info("Include found at "+line+" does not specify a file")
+                    self._debug("Include found at "+line+" does not specify a file")
             elif "\\bibliography" in line:
                 if not "\\bibliographystyle" in line:
-                    if self.debug:
-                        logging.info("Include found at "+line)
+                    self._debug("Include found at "+line)
                     try:
                         file = re.search(r'\{(.+)\}', line).group(1)
                         if file.endswith(('.bib')):  # If file has an extension, keep it
@@ -501,23 +490,18 @@ class rlatex(object):
                         else:
                             myFiles.append(file+".bib")
                     except AttributeError:
-                        if self.debug:
-                            logging.info("Skipping "+line+". It does not specify a file")
+                        self._debug("Skipping "+line+". It does not specify a file")
             elif "%rlatex" in line:
-                if self.debug:
-                    logging.info("RLatex command found at "+line)
+                self._debug("RLatex command found at "+line)
                 cmd = shlex.split(line)
                 if cmd[1] == 'compiler':
                     self.compiler = cmd[2]
-                    if self.debug:
-                        logging.info("compiler set to "+self.compiler)
+                    self._debug("Compiler set to "+self.compiler)
                 elif cmd[1] == 'output':
                     self.output = cmd[2]
-                    if self.debug:
-                        logging.info("output set to "+self.output)
+                    self._debug("output set to "+self.output)
                 elif cmd[1] == 'include':
-                    if self.debug:
-                        logging.info("including file "+cmd[2])
+                    self._debug("including file "+cmd[2])
                     if "." in cmd[2]:  # If file has an extension, keep it
                         myFiles.append(cmd[2])
                     else:
