@@ -14,8 +14,8 @@ import urllib
 import shlex
 
 __applicationName__ = "rlatex"
-__version__ = "0.8"
-__date__ = "October 5th, 2013"
+__version__ = "0.8.1"
+__date__ = "October 19th, 2013"
 __website__ = "http://pacbard.github.com/RLatex"
 __author__ = "Emanuele 'pacbard' Bardelli (bardellie at gmail dot com)"
 
@@ -35,13 +35,14 @@ Options:
     -o, --output        sets the LaTeX output file
     -l, --log:          saves the log file
     -d, --debug:        debug version of the script
+    --save-login:       saves the login information to file
     --async             compiles asynchronously
 
 The CLSI interface supports the following compilers and outputs:
     pdflatex    pdf
-    latex       dvi, pdf, ps
+    latex       dvi, pdf, ps, png, jpg, tiff, bmp
     xelatex     pdf
-    standalone  png, jpg
+    lualatex    pdf
 """
 
 __licenseName__ = "GPL v3"
@@ -206,6 +207,40 @@ class rlatex(object):
         self._debug("API URL: " + self.api_url)
         self._debug("Token: " + self.token)
 
+    def saveLogin(self):
+            """
+            Saves login information
+
+            This function saves the default login file. The format will be:
+             * server = 'foo.com'
+             * api_url = 'clsi/compile'
+             * token = 'token'
+            The file will be saved in the script's root directory.
+            """
+
+            if not self.host:
+                self.host = raw_input('Enter server: ')
+            if not self.api_url:
+                self.api_url = raw_input('Enter API URL: ')
+            if not self.token:
+                self.token = raw_input('Enter token:  ')
+
+            # Screen confirmation of the settings
+            self._debug("Server: " + self.host)
+            self._debug("API URL: " + self.api_url)
+            self._debug("Token: " + self.token)
+
+            # Saves the login file
+            try:
+                with open('login.txt', 'w') as f:
+                    self._debug('Saving login information in file {0}.'.format(self.login))
+                    f.write('server: '+self.host+'\n')
+                    f.write('api_url: '+self.api_url+'\n')
+                    f.write('token: '+self.token+'\n')
+            except IOError as e:
+                print ("Error in saving login file")
+                self._debug("Error in saving login file")
+
     def manageArgv(self, argv):
         """
         Argument management
@@ -215,7 +250,7 @@ class rlatex(object):
 
         try:
             opts, file = getopt.getopt(argv[1:], 'hlds:a:t:f:l:c:o:',
-                                ['help', 'log', 'debug', 'async' , 'server=', 'api_url=', 'token=', 'file=', 'compiler=', 'output='])
+                                ['help', 'log', 'debug', 'async' , 'server=', 'api_url=', 'token=', 'file=', 'compiler=', 'output=', 'save-login'])
         except getopt.GetoptError as err:
             print(str(err), __doc__ , sep='\n\n')
             sys.exit(2)
@@ -246,6 +281,8 @@ class rlatex(object):
                 self.output = a
             elif o in ('-d', '--debug'):
                 self.debug = True
+            elif o in ('--save-login'):
+                self.saveLogin()
             elif o in ('--async'):
                 self.sync = False
 
