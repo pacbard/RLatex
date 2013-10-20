@@ -12,6 +12,7 @@ login.txt
 build
 dist
 doc
+rlatex.spec
 
 #################
 ## Eclipse

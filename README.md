@@ -47,8 +47,8 @@ Please, note that at this time there is a bug in the CLSI server.  Asynchronous
 compilation returns a **404 error** if the compilation is in progress instead of the
 expected "**compilation in progress**" message.
 
-### Compile to Windows Executible
-It is possible to compile this script to a one Windows executible using ```pyinstaller rlatex.py```.
+### Compile to Executible
+It is possible to compile this script using ```pyinstaller --onefile rlatex.py```.
 
 
 ***
