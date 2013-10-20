@@ -22,8 +22,20 @@ the rlatex script. Command-line arguments take precedence over
 the contents of that file. See the RLaTeX documentation for formatting
 details.
 
-If any of the server, api_url, and token are omitted, you will be
-asked to provide them.
+### Configuration
+
+A ```login.txt``` configuration file can be included in the root directory
+of this script. Three options need to be included in this file:
+```
+server = 'clsi.example.com'
+api_url = '/clsi/compile'
+token = 'your_token'
+```
+
+If any required configuration option are missing or no login file is provided, 
+you will be asked to input them interactively.
+
+### Compiler Options
 
 RLatex supports multiple compilers and output formats. Please contact the
 CLSI maintainer for more information regarding supported compilers and output
@@ -35,8 +47,10 @@ reason, most user will not need to specify a compiler or output formats.
 
 It is also possible to specify the compiler and output format within the LaTeX
 file. To do so, include the following code in any LaTeX file
+```
     %rlatex: compiler cmd
     %rlatex: output ext
+```
 
 ### Asynchronous Compilation
 Asynchronous compilation is supported using the parameter ```--async```.  In this 
