@@ -560,8 +560,6 @@ class rlatex(object):
                     self.output = cmd[2]
                     if self.output != "pdf":
                         self.graphicextensions = ['.eps']
-                        print(self.graphicextensions)
-                        sys.exit()
                     self._debug("output set to "+self.output)
                 elif cmd[1] == 'include':
                     self._debug("including file "+cmd[2])
