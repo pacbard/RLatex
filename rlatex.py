@@ -405,14 +405,21 @@ class rlatex(object):
             async = SubElement(options, "asynchronous")
             async.text = 'true'
         resources = SubElement(compile, "resources")
-        resources.set("root-resource-path", source+".tex")
+        resources.set("root-resource-path", source.replace(" ", "_")+".tex")
+        isRoot = True
 
         for file in toCompile:
             try:
                 with open(path+file,"rb") as f:
                     cdata = f.read()
                     resource = SubElement(resources, "resource")
-                    resource.set("path", file)
+                    # Root filename is escaped. For some reason, the CLSI
+                    # does not like spaces in the filename
+                    if isRoot:
+                        resource.set("path", file.replace(" ", "_"))
+                        isRoot = False
+                    else:
+                        resource.set("path", file)
                     try:
                         content = cdata.decode('utf-8')
                         resource.set("encoding", 'utf-8')
