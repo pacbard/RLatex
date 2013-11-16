@@ -37,16 +37,16 @@
 
 <p>Options:</p>
 
-<pre><code>    -h, --help:         print this message
-    -s, --server:       the CLSI server to contact
-    -a, --api_url:      API URl on the server
-    -t, --token:        your token
-    -f, --file:         get login information from a file
-    -c, --compiler      sets the LaTeX Compiler
-    -o, --output        sets the LaTeX output file
-    -l, --log:          saves the log file
-    -d, --debug:        debug version of the script
-    --async             compiles asynchronously
+<pre><code>-h, --help:         print this message
+-s, --server:       the CLSI server to contact
+-a, --api_url:      API URl on the server
+-t, --token:        your token
+-f, --file:         get login information from a file
+-c, --compiler      sets the LaTeX Compiler
+-o, --output        sets the LaTeX output file
+-l, --log:          saves the log file
+-d, --debug:        debug version of the script
+--async             compiles asynchronously
 </code></pre>
 
 <p>You can hard-code the filename from which to read login information into
@@ -82,9 +82,9 @@ reason, most user will not need to specify a compiler or output formats.</p>
 <p>It is also possible to specify the compiler and output format within the LaTeX
 file. To do so, include the following code in any LaTeX file</p>
 
-<pre><code>    % rlatex: compiler: cmd
-    % rlatex: output: ext
-    % rlatex: include: file
+<pre><code>% rlatex: compiler: cmd
+% rlatex: output: ext
+% rlatex: include: file
 </code></pre>
 
 <h3>
