@@ -518,11 +518,11 @@ class rlatex(object):
             if "\\graphicspath" in line:
                 self._debug("Graphics path found at "+line)
                 self.graphicspath += self._parse(line)
-            if "\\DeclareGraphicsExtensions" in line:
+            elif "\\DeclareGraphicsExtensions" in line:
                 # This will overwrite default values
                 self.graphicextensions = self._parse(line)
                 self._debug("Graphic extensions now "+ ', '.join(self.graphicextensions))
-            if "\\includegraphics" in line:
+            elif "\\includegraphics" in line:
                 self._debug("Include graphics found at "+line)
                 file = self._parse(line)[0]
                 for p in self.graphicspath:
