@@ -1,0 +1,44 @@
+% arara: pdflatex
+% arara: bibtex
+% arara: pdflatex
+% arara: pdflatex
+% rlatex: include: sin(x).png
+\documentclass[11pt]{article}
+
+%Packets for graphs
+\usepackage{graphicx}
+\usepackage{epstopdf}
+%Boxed figures
+\usepackage{float}
+\floatstyle{boxed} 
+\restylefloat{figure}
+
+\author{John Doe} \title{Sample Document}
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+According to the handbook of van Leunen \cite{vanleunen},
+this paragraph---and certainly this
+section---should be longer than one sentence.
+
+\input{sine}
+
+\section{More references}
+
+Here we see if the reference \cite{Narendra_1990}
+to the Narendra article comes out OK, in particular,
+with volume, number \& pages.
+
+The necessary information for those who would use BibTeX
+is available in the 1988 document of Prof.\ Patashnik \cite{btxdoc}.
+Interested readers who can read French may also
+want to read Poussin's proof\cite{primes}, though
+it has nothing at all to do with BibTeX.
+
+\input{conclusion}
+
+\bibliographystyle{plain}	% (uses file "plain.bst")
+\bibliography{myrefs}		% expects file "myrefs.bib"
+\end{document}
