@@ -6,16 +6,16 @@ Usage: `python rlatex.py [options] inputfile.tex`
 
 Options:
 ```
-    -h, --help:         print this message
-    -s, --server:       the CLSI server to contact
-    -a, --api_url:      API URl on the server
-    -t, --token:        your token
-    -f, --file:         get login information from a file
-    -c, --compiler      sets the LaTeX Compiler
-    -o, --output        sets the LaTeX output file
-    -l, --log:          saves the log file
-    -d, --debug:        debug version of the script
-    --async             compiles asynchronously
+-h, --help:         print this message
+-s, --server:       the CLSI server to contact
+-a, --api_url:      API URl on the server
+-t, --token:        your token
+-f, --file:         get login information from a file
+-c, --compiler      sets the LaTeX Compiler
+-o, --output        sets the LaTeX output file
+-l, --log:          saves the log file
+-d, --debug:        debug version of the script
+--async             compiles asynchronously
 ```
 You can hard-code the filename from which to read login information into
 the rlatex script. Command-line arguments take precedence over
@@ -48,9 +48,9 @@ reason, most user will not need to specify a compiler or output formats.
 It is also possible to specify the compiler and output format within the LaTeX
 file. To do so, include the following code in any LaTeX file
 ```
-    % rlatex: compiler: cmd
-    % rlatex: output: ext
-    % rlatex: include: file
+% rlatex: compiler: cmd
+% rlatex: output: ext
+% rlatex: include: file
 ```
 
 ### Asynchronous Compilation
