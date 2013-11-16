@@ -574,6 +574,8 @@ class rlatex(object):
                         myFiles.add(cmd[2])
                     else:
                         myFiles.add(cmd[2]+".tex")   # Fallback extension is .tex
+            elif "% arara:" in line:
+                self.compiler = "arara"
         myFiles= list(myFiles)
         self._debug("Included files :"+', '.join(myFiles))
         return myFiles
