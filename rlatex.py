@@ -14,15 +14,15 @@ import urllib
 import shlex
 
 __applicationName__ = "rlatex"
-__version__ = "0.8.1"
-__date__ = "October 19th, 2013"
-__website__ = "http://pacbard.github.com/RLatex"
+__version__ = "0.8.2"
+__date__ = "November 16th, 2013"
+__website__ = "http://pacbard.github.io/RLatex"
 __author__ = "Emanuele 'pacbard' Bardelli (bardellie at gmail dot com)"
 
 __doc__ = """
 A CLSI server command line client.
 
-Usage: {0} [options] inputfile.tex
+Usage: rlatex [options] inputfile.tex
 
 Options:
 
@@ -43,6 +43,7 @@ The CLSI interface supports the following compilers and outputs:
     latex       dvi, pdf, ps, png, jpg, tiff, bmp
     xelatex     pdf
     lualatex    pdf
+    arara       dvi, pdf, ps, png, jpg, tiff, bmp
 """
 
 __licenseName__ = "GPL v3"
@@ -506,7 +507,7 @@ class rlatex(object):
         and the file extension .bib for the files included with \thebibliography.
         Verson 0.8.1 adds support for embedded compiler options in the latex
         sorce code. To specify an option, use the command
-        %rlatex: cmd options
+        % rlatex: cmd: options
         """
         try:
             load_profile = open(file, "r")
@@ -557,23 +558,23 @@ class rlatex(object):
                             myFiles.add(file+".bib")
                     except AttributeError:
                         self._debug("Skipping "+line+". It does not specify a file")
-            elif "%rlatex" in line:
+            elif "% rlatex:" in line:
                 self._debug("RLatex command found at "+line)
                 cmd = shlex.split(line)
-                if cmd[1] == 'compiler':
-                    self.compiler = cmd[2]
+                if cmd[2] == 'compiler:':
+                    self.compiler = cmd[3]
                     self._debug("Compiler set to "+self.compiler)
-                elif cmd[1] == 'output':
-                    self.output = cmd[2]
+                elif cmd[2] == 'output:':
+                    self.output = cmd[3]
                     if self.output != "pdf":
                         self.graphicextensions = ['.eps']
                     self._debug("output set to "+self.output)
-                elif cmd[1] == 'include':
+                elif cmd[2] == 'include:':
                     self._debug("including file "+cmd[2])
-                    if "." in cmd[2]:  # If file has an extension, keep it
-                        myFiles.add(cmd[2])
+                    if "." in cmd[3]:  # If file has an extension, keep it
+                        myFiles.add(cmd[3])
                     else:
-                        myFiles.add(cmd[2]+".tex")   # Fallback extension is .tex
+                        myFiles.add(cmd[3]+".tex")   # Fallback extension is .tex
             elif "% arara:" in line:
                 self.compiler = "arara"
         myFiles= list(myFiles)

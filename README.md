@@ -48,8 +48,9 @@ reason, most user will not need to specify a compiler or output formats.
 It is also possible to specify the compiler and output format within the LaTeX
 file. To do so, include the following code in any LaTeX file
 ```
-    %rlatex: compiler cmd
-    %rlatex: output ext
+    % rlatex: compiler: cmd
+    % rlatex: output: ext
+    % rlatex: include: file
 ```
 
 ### Asynchronous Compilation
