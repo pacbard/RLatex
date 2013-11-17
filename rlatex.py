@@ -525,26 +525,41 @@ class rlatex(object):
                 self._debug("Graphic extensions now "+ ', '.join(self.graphicextensions))
             elif "\\includegraphics" in line:
                 self._debug("Include graphics found at "+line)
-                file = self._parse(line)[0]
-                for p in self.graphicspath:
-                    self._debug("Searching for file "+p+file)
-                    if "." in file:  # If file has an extension, keep it
-                        if os.path.exists(p+file):
-                            self._debug("File "+p+file+" exists")
-                            myFiles.add(p+file)
-                    else:
-                        for ext in self.graphicextensions:
-                            if os.path.exists(p+file+ext):
-                                self._debug("File "+p+file+ext+" exists")
-                                myFiles.add(p+file+ext)
+                f = self._parse(line)[0]
+                if os.path.exists(self.texpath+f):
+                    self._debug("File "+self.texpath+f+" exists")
+                    myFiles.add(f)
+                else:
+                    for p in self.graphicspath:
+                        self._debug("Searching for file "+p+f)
+                        if "." in f:  # If file has an extension, keep it
+                            if os.path.exists(p+f):
+                                self._debug("File "+p+f+" exists")
+                                myFiles.add(p+f)
+                        else:
+                            for ext in self.graphicextensions:
+                                if os.path.exists(f):
+                                    self._debug("File "+self.texpath+f+ext+" exists")
+                                    myFiles.add(f+ext)
+                                if os.path.exists(p+f+ext):
+                                    self._debug("File "+p+f+ext+" exists")
+                                    myFiles.add(p+f+ext)
             elif "\\include" in line or "\\input" in line:
                 self._debug("Include found at "+line)
                 try:
-                    file = self._parse(line)[0]
-                    if "." in file:  # If file has an extension, keep it
-                        myFiles.add(file)
+                    f = self._parse(line)[0]
+                    if "." in f:  # If file has an extension, keep it
+                        myFiles.add(f)
+                        # Search the included file
+                        self._debug("Searching "+f+" for more included files")
+                        myFiles |= set(self.findIncluded(self.texpath+f))
+                        self._debug("Finished searching "+f)
                     else:
-                        myFiles.add(file+".tex")
+                        myFiles.add(f+".tex")
+                        # Search the included file
+                        self._debug("Searching "+f+" for more included files")
+                        myFiles |= set(self.findIncluded(self.texpath+f+".tex"))
+                        self._debug("Finished searching "+f)
                 except AttributeError:
                     self._debug("Include found at "+line+" does not specify a file")
             elif "\\bibliography" in line:
